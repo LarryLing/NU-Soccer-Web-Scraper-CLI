@@ -1,9 +1,10 @@
 from bs4 import BeautifulSoup
 import time
+import json
 
 def prompt():
     """
-    Prompts the user and returns the command number
+    Prompts the user for a team name returns it.
     """
 
     try:
@@ -25,8 +26,8 @@ def prompt():
         print("   DePaul")
         print("   Exit")
 
-        cmd = input()
-        return cmd
+        team_name = input()
+        return team_name
 
     except Exception as e:
         print("ERROR")
@@ -35,69 +36,10 @@ def prompt():
         return -1
 
 def get_team_data(team_name):
-    teams = {
-        "Northwestern": {
-            "base_url": "https://nusports.com",
-            "type": 1
-        },
-        "Indiana": {
-            "base_url": "https://iuhoosiers.com",
-            "type": 1
-        },
-        "Ohio State": {
-            "base_url": "https://ohiostatebuckeyes.com",
-            "type": 1
-        },
-        "Maryland": {
-            "base_url": "https://umterps.com",
-            "type": 2
-        },
-        "Washington": {
-            "base_url": "https://gohuskies.com",
-            "type": 2
-        },
-        "UCLA": {
-            "base_url": "https://uclabruins.com",
-            "type": 1
-        },
-        "Michigan State": {
-            "base_url": "https://msuspartans.com",
-            "type": 1
-        },
-        "Michigan": {
-            "base_url": "https://mgoblue.com",
-            "type": 1
-        },
-        "Rutgers": {
-            "base_url": "https://scarletknights.com",
-            "type": 2
-        },
-        "Wisconsin": {
-            "base_url": "https://uwbadgers.com",
-            "type": 2
-        },
-        "Penn State": {
-            "base_url": "https://gopsusports.com",
-            "type": 3
-        },
-        "UIC": {
-            "base_url": "https://uicflames.com",
-            "type": 2
-        },
-        "Loyola": {
-            "base_url": "https://loyolaramblers.com",
-            "type": 2
-        },
-        "DePaul": {
-            "base_url": "https://depaulbluedemons.com",
-            "type": 1
-        },
-    }
+    with open("teams.json", "r") as file:
+        teams = json.load(file)
 
-    if (team_name in teams):
-        return teams[team_name]
-    else:
-        return None
+    return teams.get(team_name, None)
 
 def create_html_table(title, columns, rows):
     """
@@ -161,11 +103,9 @@ def process_table(driver, url, ignore_columns):
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 
-    # First get the columns
     column_cells = doc.find_all("th")
     columns = [column_cell.text for column_cell in column_cells if (column_cell.text not in ignore_columns)]
 
-    # Then get the rows
     rows = []
 
     tbody = doc.find("tbody")

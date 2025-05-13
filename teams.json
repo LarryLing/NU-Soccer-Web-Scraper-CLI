@@ -1,0 +1,72 @@
+{
+    "Northwestern": {
+        "name": "Northwestern",
+        "base_url": "https://nusports.com",
+        "type": 1
+    },
+    "Indiana": {
+        "name": "Indiana",
+        "base_url": "https://iuhoosiers.com",
+        "type": 1
+    },
+    "Ohio State": {
+        "name": "Ohio State",
+        "base_url": "https://ohiostatebuckeyes.com",
+        "type": 1
+    },
+    "Maryland": {
+        "name": "Maryland",
+        "base_url": "https://umterps.com",
+        "type": 2
+    },
+    "Washington": {
+        "name": "Washington",
+        "base_url": "https://gohuskies.com",
+        "type": 2
+    },
+    "UCLA": {
+        "name": "UCLA",
+        "base_url": "https://uclabruins.com",
+        "type": 1
+    },
+    "Michigan State": {
+        "name": "Michigan State",
+        "base_url": "https://msuspartans.com",
+        "type": 1
+    },
+    "Michigan": {
+        "name": "Michigan",
+        "base_url": "https://mgoblue.com",
+        "type": 1
+    },
+    "Rutgers": {
+        "name": "Rutgers",
+        "base_url": "https://scarletknights.com",
+        "type": 2
+    },
+    "Wisconsin": {
+        "name": "Wisconsin",
+        "base_url": "https://uwbadgers.com",
+        "type": 2
+    },
+    "Penn State": {
+        "name": "Penn State",
+        "base_url": "https://gopsusports.com",
+        "type": 3
+    },
+    "UIC": {
+        "name": "UIC",
+        "base_url": "https://uicflames.com",
+        "type": 2
+    },
+    "Loyola": {
+        "name": "Loyola",
+        "base_url": "https://loyolaramblers.com",
+        "type": 2
+    },
+    "DePaul": {
+        "name": "DePaul",
+        "base_url": "https://depaulbluedemons.com",
+        "type": 1
+    }
+}

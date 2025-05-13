@@ -30,13 +30,12 @@ while (team_name != "Exit"):
         print("ERROR: invalid team name")
         print("ERROR")
         team_name = prompt()
+
         continue
 
-    url = f"{team_data["base_url"]}/sports/mens-soccer/roster/print"
-    print_roster(team_name, driver, url, pdfkit_config, settings)
+    print_roster(team_data, driver, pdfkit_config, settings)
 
-    url = f"{team_data["base_url"]}/sports/mens-soccer/schedule?view=table&print=auto"
-    print_schedule(team_name, driver, url, pdfkit_config, settings)
+    print_schedule(team_data, driver, pdfkit_config, settings)
 
     team_name = prompt()
 
