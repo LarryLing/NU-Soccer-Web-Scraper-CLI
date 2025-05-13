@@ -68,6 +68,7 @@ def create_html_tables(title, tables):
         <title>{title}</title>
         <style>
             table {{ width: 100%; border-collapse: collapse; }}
+            thead {{ display: table-row-group; }}
             th, td {{ font-size: 12px; border: 1px solid #ddd; padding: 8px; text-align: left; }}
             th {{ background-color: #f4f4f4; }}
         </style>
