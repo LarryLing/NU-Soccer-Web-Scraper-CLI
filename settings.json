@@ -1,0 +1,17 @@
+{
+    "output": {
+        "path": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder"
+    },
+    "roster": {
+        "ignore_columns": [
+            "Twitter",
+            "Instagram",
+            "Major"
+        ]
+    },
+    "schedule": {
+        "ignore_columns": [
+            "Links"
+        ]
+    }
+}
