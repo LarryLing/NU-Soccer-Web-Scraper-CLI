@@ -10,6 +10,7 @@ import json
 service = Service(executable_path="chromedriver.exe")
 chrome_options = ChromiumOptions()
 chrome_options.add_argument("--headless")
+chrome_options.add_argument("--log-level=3")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Configure PDFKit by setting the path to wkhtmltopdf
