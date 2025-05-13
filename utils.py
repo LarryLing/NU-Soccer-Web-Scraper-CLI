@@ -23,7 +23,7 @@ def prompt():
         print("   Michigan")
         print("   Rutgers")
         print("   Wisconsin")
-        print("   Penn State")
+        print("   Penn State (not available)")
         print("   UIC")
         print("   Loyola")
         print("   DePaul")
@@ -156,7 +156,7 @@ def process_table(table, ignore_columns):
     # Get the table columns
     thead = table.find("thead")
     if (thead is None): return None
-    processed_columns = [th.text for th in thead.find_all("th") if (th.text not in ignore_columns)]
+    processed_columns = [th.text for th in thead.find_all("th")]
 
     # Get the table content
     processed_rows = []
@@ -167,11 +167,13 @@ def process_table(table, ignore_columns):
         if (child.name != "tr"): continue
 
         child_td = child.find_all("td")
-        table_row = [table_row_cell.text for table_row_cell in child_td if (table_row_cell.text != "Skip Ad")]
+        row = [cell.text for cell in child_td if (cell.text != "Skip Ad")]
 
-        zipped = list(zip(processed_columns, table_row))
+        zipped = list(zip(processed_columns, row))
 
-        processed_rows.append([item[1] for item in zipped])
+        processed_rows.append([item[1] for item in zipped if (item[0] not in ignore_columns)])
+
+    processed_columns = [column for column in processed_columns if (column not in ignore_columns)]
 
     return {
         "caption": processed_caption,

@@ -12,6 +12,7 @@
     },
     "roster": {
         "ignore_columns": [
+            "Image",
             "Twitter",
             "Instagram",
             "Major"
