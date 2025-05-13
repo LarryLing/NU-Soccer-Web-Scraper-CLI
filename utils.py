@@ -54,7 +54,7 @@ def get_team_data(team_name):
 
     return teams.get(team_name, None)
 
-def create_html_table(title, columns, rows):
+def create_html_tables(title, tables):
     """
     Initialize a HTML table.
     """
@@ -74,15 +74,7 @@ def create_html_table(title, columns, rows):
     </head>
     <body>
         <main>
-            <h3>{title}</h3>
-            <table>
-                <thead>
-                    <tr>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <h1>{title}</h1>
         </main>
     </body>
     </html>
@@ -90,24 +82,47 @@ def create_html_table(title, columns, rows):
 
     doc = BeautifulSoup(html, "html.parser")
 
-    tr = doc.find("tr")
-    for column in columns:
-        th = doc.new_tag("th", string=column)
-        tr.append(th)
+    main = doc.find("main")
 
-    tbody = doc.find("tbody")
-    for row in rows:
-        tr = doc.new_tag("tr")
-        for cell in row:
-            td = doc.new_tag("td", string=cell)
-            tr.append(td)
-        tbody.append(tr)
+    for table in tables:
+        div_tag = doc.new_tag("div")
+        main.append(div_tag)
+
+        # Insert the table caption
+        if (table["caption"]):
+            h3_tag = doc.new_tag("h3", string=table["caption"])
+            div_tag.append(h3_tag)
+
+        # Insert the table
+        table_tag = doc.new_tag("table")
+        div_tag.append(table_tag)
+
+        # Insert the table header
+        thead_tag = doc.new_tag("thead")
+
+        for column in table["columns"]:
+            th = doc.new_tag("th", string=column)
+            thead_tag.append(th)
+
+        table_tag.append(thead_tag)
+
+        # Insert the table body
+        tbody_tag = doc.new_tag("tbody")
+
+        for row in table["rows"]:
+            tr = doc.new_tag("tr")
+            for cell in row:
+                td = doc.new_tag("td", string=cell)
+                tr.append(td)
+            tbody_tag.append(tr)
+
+        table_tag.append(tbody_tag)
 
     return doc.prettify()
 
-async def process_table(driver, url, ignore_columns):
+async def process_tables(driver, url, ignore_columns):
     """
-    Process the table from the page.
+    Process the tables from the pages.
     """
 
     driver.get(url)
@@ -116,20 +131,49 @@ async def process_table(driver, url, ignore_columns):
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 
-    column_cells = doc.find_all("th")
-    columns = [column_cell.text for column_cell in column_cells if (column_cell.text not in ignore_columns)]
+    tables = doc.find_all("table")
 
-    rows = []
+    proccessed_tables = []
+    for table in tables:
+        processed_table = process_table(table, ignore_columns)
+        if (processed_table is not None):
+            proccessed_tables.append(processed_table)
 
-    tbody = doc.find("tbody")
+    return proccessed_tables
+
+def process_table(table, ignore_columns):
+    """
+    Process the table from the page.
+    """
+
+    # Get the table caption
+    processed_caption = None
+
+    caption = table.find("caption")
+    if (caption): processed_caption = caption.text
+
+    # Get the table columns
+    thead = table.find("thead")
+    if (thead is None): return None
+    processed_columns = [th.text for th in thead.find_all("th") if (th.text not in ignore_columns)]
+
+    # Get the table content
+    processed_rows = []
+
+    tbody = table.find("tbody")
+    if (tbody is None): return None
     for child in tbody.children:
         if (child.name != "tr"): continue
 
         child_td = child.find_all("td")
         table_row = [table_row_cell.text for table_row_cell in child_td if (table_row_cell.text != "Skip Ad")]
 
-        zipped = list(zip(columns, table_row))
+        zipped = list(zip(processed_columns, table_row))
 
-        rows.append([item[1] for item in zipped])
+        processed_rows.append([item[1] for item in zipped])
 
-    return columns, rows
+    return {
+        "caption": processed_caption,
+        "columns": processed_columns,
+        "rows": processed_rows
+    }
