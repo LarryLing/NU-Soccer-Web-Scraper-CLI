@@ -1,6 +1,14 @@
 {
-    "output": {
-        "path": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder"
+    "paths": {
+        "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
+        "chromedriver": "chromedriver.exe",
+        "output": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder"
+    },
+    "web_driver": {
+        "arguments": [
+            "--headless",
+            "--log-level=3"
+        ]
     },
     "roster": {
         "ignore_columns": [

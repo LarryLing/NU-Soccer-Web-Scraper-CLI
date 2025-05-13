@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
-import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import ChromiumOptions
 import json
+import asyncio
 
 def prompt():
     """
@@ -34,6 +37,16 @@ def prompt():
         print("ERROR: invalid input")
         print("ERROR")
         return -1
+
+def initialize_web_driver(settings):
+    service = Service(executable_path=settings["paths"]["chromedriver"])
+
+    chrome_options = ChromiumOptions()
+
+    for arg in settings["web_driver"]["arguments"]:
+        chrome_options.add_argument(arg)
+
+    return webdriver.Chrome(service=service, options=chrome_options)
 
 def get_team_data(team_name):
     with open("teams.json", "r") as file:
@@ -92,14 +105,14 @@ def create_html_table(title, columns, rows):
 
     return doc.prettify()
 
-def process_table(driver, url, ignore_columns):
+async def process_table(driver, url, ignore_columns):
     """
     Process the table from the page.
     """
 
     driver.get(url)
 
-    time.sleep(2)
+    await asyncio.sleep(2)
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 
