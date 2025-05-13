@@ -1,9 +1,13 @@
 from bs4 import BeautifulSoup
-import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import ChromiumOptions
+import json
+import asyncio
 
 def prompt():
     """
-    Prompts the user and returns the command number
+    Prompts the user for a team name returns it.
     """
 
     try:
@@ -19,14 +23,14 @@ def prompt():
         print("   Michigan")
         print("   Rutgers")
         print("   Wisconsin")
-        print("   Penn State")
+        print("   Penn State (not available)")
         print("   UIC")
         print("   Loyola")
         print("   DePaul")
         print("   Exit")
 
-        cmd = input()
-        return cmd
+        team_name = input()
+        return team_name
 
     except Exception as e:
         print("ERROR")
@@ -34,72 +38,23 @@ def prompt():
         print("ERROR")
         return -1
 
+def initialize_web_driver(settings):
+    service = Service(executable_path=settings["paths"]["chromedriver"])
+
+    chrome_options = ChromiumOptions()
+
+    for arg in settings["web_driver"]["arguments"]:
+        chrome_options.add_argument(arg)
+
+    return webdriver.Chrome(service=service, options=chrome_options)
+
 def get_team_data(team_name):
-    teams = {
-        "Northwestern": {
-            "base_url": "https://nusports.com",
-            "type": 1
-        },
-        "Indiana": {
-            "base_url": "https://iuhoosiers.com",
-            "type": 1
-        },
-        "Ohio State": {
-            "base_url": "https://ohiostatebuckeyes.com",
-            "type": 1
-        },
-        "Maryland": {
-            "base_url": "https://umterps.com",
-            "type": 2
-        },
-        "Washington": {
-            "base_url": "https://gohuskies.com",
-            "type": 2
-        },
-        "UCLA": {
-            "base_url": "https://uclabruins.com",
-            "type": 1
-        },
-        "Michigan State": {
-            "base_url": "https://msuspartans.com",
-            "type": 1
-        },
-        "Michigan": {
-            "base_url": "https://mgoblue.com",
-            "type": 1
-        },
-        "Rutgers": {
-            "base_url": "https://scarletknights.com",
-            "type": 2
-        },
-        "Wisconsin": {
-            "base_url": "https://uwbadgers.com",
-            "type": 2
-        },
-        "Penn State": {
-            "base_url": "https://gopsusports.com",
-            "type": 3
-        },
-        "UIC": {
-            "base_url": "https://uicflames.com",
-            "type": 2
-        },
-        "Loyola": {
-            "base_url": "https://loyolaramblers.com",
-            "type": 2
-        },
-        "DePaul": {
-            "base_url": "https://depaulbluedemons.com",
-            "type": 1
-        },
-    }
+    with open("teams.json", "r") as file:
+        teams = json.load(file)
 
-    if (team_name in teams):
-        return teams[team_name]
-    else:
-        return None
+    return teams.get(team_name, None)
 
-def create_html_table(title, columns, rows):
+def create_html_tables(title, tables):
     """
     Initialize a HTML table.
     """
@@ -113,21 +68,14 @@ def create_html_table(title, columns, rows):
         <title>{title}</title>
         <style>
             table {{ width: 100%; border-collapse: collapse; }}
+            thead {{ display: table-row-group; }}
             th, td {{ font-size: 12px; border: 1px solid #ddd; padding: 8px; text-align: left; }}
             th {{ background-color: #f4f4f4; }}
         </style>
     </head>
     <body>
         <main>
-            <h3>{title}</h3>
-            <table>
-                <thead>
-                    <tr>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <h1>{title}</h1>
         </main>
     </body>
     </html>
@@ -135,48 +83,100 @@ def create_html_table(title, columns, rows):
 
     doc = BeautifulSoup(html, "html.parser")
 
-    tr = doc.find("tr")
-    for column in columns:
-        th = doc.new_tag("th", string=column)
-        tr.append(th)
+    main = doc.find("main")
 
-    tbody = doc.find("tbody")
-    for row in rows:
-        tr = doc.new_tag("tr")
-        for cell in row:
-            td = doc.new_tag("td", string=cell)
-            tr.append(td)
-        tbody.append(tr)
+    for table in tables:
+        div_tag = doc.new_tag("div")
+        main.append(div_tag)
+
+        # Insert the table caption
+        if (table["caption"]):
+            h3_tag = doc.new_tag("h3", string=table["caption"])
+            div_tag.append(h3_tag)
+
+        # Insert the table
+        table_tag = doc.new_tag("table")
+        div_tag.append(table_tag)
+
+        # Insert the table header
+        thead_tag = doc.new_tag("thead")
+
+        for column in table["columns"]:
+            th = doc.new_tag("th", string=column)
+            thead_tag.append(th)
+
+        table_tag.append(thead_tag)
+
+        # Insert the table body
+        tbody_tag = doc.new_tag("tbody")
+
+        for row in table["rows"]:
+            tr = doc.new_tag("tr")
+            for cell in row:
+                td = doc.new_tag("td", string=cell)
+                tr.append(td)
+            tbody_tag.append(tr)
+
+        table_tag.append(tbody_tag)
 
     return doc.prettify()
 
-def process_table(driver, url, ignore_columns):
+async def process_tables(driver, url, ignore_columns):
     """
-    Process the table from the page.
+    Process the tables from the pages.
     """
 
     driver.get(url)
 
-    time.sleep(2)
+    await asyncio.sleep(2)
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 
-    # First get the columns
-    column_cells = doc.find_all("th")
-    columns = [column_cell.text for column_cell in column_cells if (column_cell.text not in ignore_columns)]
+    tables = doc.find_all("table")
 
-    # Then get the rows
-    rows = []
+    proccessed_tables = []
+    for table in tables:
+        processed_table = process_table(table, ignore_columns)
+        if (processed_table is not None):
+            proccessed_tables.append(processed_table)
 
-    tbody = doc.find("tbody")
+    return proccessed_tables
+
+def process_table(table, ignore_columns):
+    """
+    Process the table from the page.
+    """
+
+    # Get the table caption
+    processed_caption = None
+
+    caption = table.find("caption")
+    if (caption): processed_caption = caption.text
+
+    # Get the table columns
+    thead = table.find("thead")
+    if (thead is None): return None
+    processed_columns = [th.text for th in thead.find_all("th")]
+
+    # Get the table content
+    processed_rows = []
+
+    tbody = table.find("tbody")
+    if (tbody is None): return None
     for child in tbody.children:
         if (child.name != "tr"): continue
 
         child_td = child.find_all("td")
-        table_row = [table_row_cell.text for table_row_cell in child_td if (table_row_cell.text != "Skip Ad")]
+        row = [cell.text for cell in child_td if (cell.text != "Skip Ad")]
 
-        zipped = list(zip(columns, table_row))
+        zipped = list(zip(processed_columns, row))
 
-        rows.append([item[1] for item in zipped])
+        processed_rows.append([item[1] for item in zipped if (item[0] not in ignore_columns)])
 
-    return columns, rows
+    processed_columns = [column for column in processed_columns if (column not in ignore_columns)]
+
+    return {
+        "caption": processed_caption,
+        "columns": processed_columns,
+        "rows": processed_rows
+    }
