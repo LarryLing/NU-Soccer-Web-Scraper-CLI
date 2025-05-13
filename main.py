@@ -1,5 +1,5 @@
 import pdfkit
-from scrape import print_roster, print_schedule
+from scrape import print_roster, print_schedule, print_stats
 from utils import get_team_data, prompt
 import json
 import asyncio
@@ -27,6 +27,9 @@ async def main():
             print_roster(team_data, pdfkit_config, settings),
             print_schedule(team_data, pdfkit_config, settings)
         ]
+
+        for year in settings["stats"]["years"]:
+            promises.append(print_stats(team_data, year, settings))
 
         await asyncio.gather(*promises)
 

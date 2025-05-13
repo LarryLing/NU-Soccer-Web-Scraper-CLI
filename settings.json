@@ -22,5 +22,15 @@
         "ignore_columns": [
             "Links"
         ]
+    },
+    "stats": {
+        "years": [
+            "2024",
+            "2023"
+        ],
+        "prompts": [
+            "Download PDF",
+            "Download Document"
+        ]
     }
 }

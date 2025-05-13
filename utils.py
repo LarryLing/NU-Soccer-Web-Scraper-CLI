@@ -128,7 +128,7 @@ async def process_tables(driver, url, ignore_columns):
 
     driver.get(url)
 
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 
