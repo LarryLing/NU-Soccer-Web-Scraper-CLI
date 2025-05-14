@@ -1,8 +1,8 @@
-import asyncio
 from bs4 import BeautifulSoup
-import pdfkit
-from utils import create_html_tables, initialize_web_driver, process_tables
 from urllib.parse import urlparse, parse_qs
+from utils import create_html_tables, initialize_web_driver, process_tables
+import asyncio
+import pdfkit
 import requests
 
 async def print_roster(team_data, pdfkit_config, settings):
@@ -95,4 +95,4 @@ async def print_stats(team_data, year, settings):
     response = requests.get(file_location)
 
     with open(output_path, 'wb') as file:
-            file.write(response.content)
+        file.write(response.content)

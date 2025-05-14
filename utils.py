@@ -1,8 +1,7 @@
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import ChromiumOptions
-import json
+from bs4 import BeautifulSoup
 import asyncio
 
 def prompt():
@@ -47,12 +46,6 @@ def initialize_web_driver(settings):
         chrome_options.add_argument(arg)
 
     return webdriver.Chrome(service=service, options=chrome_options)
-
-def get_team_data(team_name):
-    with open("teams.json", "r") as file:
-        teams = json.load(file)
-
-    return teams.get(team_name, None)
 
 def create_html_tables(title, tables):
     """
@@ -156,24 +149,31 @@ def process_table(table, ignore_columns):
     # Get the table columns
     thead = table.find("thead")
     if (thead is None): return None
-    processed_columns = [th.text for th in thead.find_all("th")]
+
+    # Get the column names and indexes of the columns to ignore
+    ignore_column_indexes = []
+    processed_columns = []
+
+    for index, th in enumerate(thead.find_all("th")):
+        if (th.text in ignore_columns):
+            ignore_column_indexes.append(index)
+            continue
+
+        processed_columns.append(th.text)
 
     # Get the table content
     processed_rows = []
 
     tbody = table.find("tbody")
     if (tbody is None): return None
+
     for child in tbody.children:
         if (child.name != "tr"): continue
 
-        child_td = child.find_all("td")
-        row = [cell.text for cell in child_td if (cell.text != "Skip Ad")]
+        # Get content of the rows, ignore row entirely if it contains "Skip Ad". Also skip cells if their index is in ignore_column_indexes
+        row = [cell.text for index, cell in enumerate(child.find_all("td")) if (cell.text != "Skip Ad") and (index not in ignore_column_indexes)]
 
-        zipped = list(zip(processed_columns, row))
-
-        processed_rows.append([item[1] for item in zipped if (item[0] not in ignore_columns)])
-
-    processed_columns = [column for column in processed_columns if (column not in ignore_columns)]
+        processed_rows.append(row)
 
     return {
         "caption": processed_caption,

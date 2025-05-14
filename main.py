@@ -1,6 +1,6 @@
-import pdfkit
 from scrape import print_roster, print_schedule, print_stats
-from utils import get_team_data, prompt
+from utils import prompt
+import pdfkit
 import json
 import asyncio
 
@@ -13,7 +13,7 @@ async def main():
     team_name = prompt()
 
     while (team_name != "Exit"):
-        team_data = get_team_data(team_name)
+        team_data = settings["teams"].get(team_name, None)
 
         if (team_data is None):
             print("ERROR")

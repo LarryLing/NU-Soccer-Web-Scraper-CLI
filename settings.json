@@ -32,5 +32,77 @@
             "Download PDF",
             "Download Document"
         ]
+    },
+    "teams": {
+        "Northwestern": {
+            "name": "Northwestern Wildcats",
+            "base_url": "https://nusports.com",
+            "type": 1
+        },
+        "Indiana": {
+            "name": "Indiana Hoosiers",
+            "base_url": "https://iuhoosiers.com",
+            "type": 1
+        },
+        "Ohio State": {
+            "name": "Ohio State Buckeyes",
+            "base_url": "https://ohiostatebuckeyes.com",
+            "type": 1
+        },
+        "Maryland": {
+            "name": "Maryland Terrapins",
+            "base_url": "https://umterps.com",
+            "type": 2
+        },
+        "Washington": {
+            "name": "Washington Huskies",
+            "base_url": "https://gohuskies.com",
+            "type": 2
+        },
+        "UCLA": {
+            "name": "UCLA Bruins",
+            "base_url": "https://uclabruins.com",
+            "type": 1
+        },
+        "Michigan State": {
+            "name": "Michigan State Spartans",
+            "base_url": "https://msuspartans.com",
+            "type": 1
+        },
+        "Michigan": {
+            "name": "Michigan Wolverines",
+            "base_url": "https://mgoblue.com",
+            "type": 1
+        },
+        "Rutgers": {
+            "name": "Rutgers Scarlet Knights",
+            "base_url": "https://scarletknights.com",
+            "type": 2
+        },
+        "Wisconsin": {
+            "name": "Wisconsin Badgers",
+            "base_url": "https://uwbadgers.com",
+            "type": 2
+        },
+        "Penn State": {
+            "name": "Penn State Nittany Lions",
+            "base_url": "https://gopsusports.com",
+            "type": 3
+        },
+        "UIC": {
+            "name": "UIC Flames",
+            "base_url": "https://uicflames.com",
+            "type": 2
+        },
+        "Loyola": {
+            "name": "Loyola Ramblers",
+            "base_url": "https://loyolaramblers.com",
+            "type": 2
+        },
+        "DePaul": {
+            "name": "DePaul Blue Demons",
+            "base_url": "https://depaulbluedemons.com",
+            "type": 1
+        }
     }
 }
