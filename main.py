@@ -1,4 +1,4 @@
-from scrape import print_roster, print_schedule, print_stats
+from scrape import print_box_scores, print_roster, print_schedule, print_stats
 from utils import prompt
 import pdfkit
 import json
@@ -25,7 +25,8 @@ async def main():
 
         promises = [
             print_roster(team_data, pdfkit_config, settings),
-            print_schedule(team_data, pdfkit_config, settings)
+            print_schedule(team_data, pdfkit_config, settings),
+            print_box_scores(team_data, settings)
         ]
 
         for year in settings["stats"]["years"]:
