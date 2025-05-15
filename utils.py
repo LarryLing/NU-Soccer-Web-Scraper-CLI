@@ -169,7 +169,6 @@ def process_table(table: Tag, ignore_columns: list[str]) -> tuple[str, list[str]
             caption (str): The caption of the table.
             columns (list[str]): List of column names.
             rows (list[list[str]]): List of rows, each row is a list of cell values.
-        If the table is empty or has no rows, return None.
     """
     processed_caption = None
 

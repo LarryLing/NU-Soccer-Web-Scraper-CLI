@@ -3,6 +3,7 @@ from utils import prompt
 import pdfkit
 import json
 import asyncio
+import os
 
 async def main():
     with open("settings.json", "r") as file:
@@ -22,6 +23,9 @@ async def main():
             team_name = prompt(settings["teams"])
 
             continue
+
+        team_output_path = f"{settings["base_output_path"]}\\{team_data["name"]}"
+        if (not os.path.exists(team_output_path)): os.makedirs(team_output_path)
 
         promises = [
             print_roster(team_data, pdfkit_config, settings),
