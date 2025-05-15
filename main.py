@@ -29,10 +29,9 @@ async def main():
             print_box_scores(team_data, settings)
         ]
 
-        for year in settings["stats"]["years"]:
-            promises.append(print_stats(team_data, year, settings))
-
         await asyncio.gather(*promises)
+
+        print_stats(team_data, settings)
 
         team_name = prompt()
 

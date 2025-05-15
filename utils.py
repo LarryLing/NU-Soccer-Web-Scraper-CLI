@@ -1,7 +1,9 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import ChromiumOptions
 from bs4 import BeautifulSoup
+from urllib.parse import parse_qs, urlparse
 import asyncio
 
 def prompt():
@@ -180,3 +182,56 @@ def process_table(table, ignore_columns):
         "columns": processed_columns,
         "rows": processed_rows
     }
+
+def get_boost_box_score_pdf_urls(doc, settings):
+    """
+    Get the URLs of the box scores from the conference websites provided by Boost.
+    """
+
+    schedule_table = doc.find("table")
+
+    box_score_pdf_urls = [a["href"] for a in schedule_table.find_all("a", string="Box Score")]
+
+    return box_score_pdf_urls[(-1 * settings["box_scores"]["count"]):]
+
+def get_sidearm_box_score_pdf_urls(driver, team_data, doc, settings):
+    """
+    Get the URLs of the box scores from the conference websites provided by Sidearm.
+    """
+
+    matches = []
+
+    matchday_tables = doc.find_all("table")
+
+    for matchday_table in matchday_tables:
+        matchday_table_body = matchday_table.find("tbody")
+
+        for tr in matchday_table_body.find_all("tr"):
+            away_team_td = tr.select_one('td[class*="sidearm-team-away"]')
+            home_team_td = tr.select_one('td[class*="sidearm-team-home"]')
+
+            away_team = away_team_td.find("span", class_="sidearm-calendar-list-group-list-game-team-title").find(['a', 'span']).text
+            home_team = home_team_td.find("span", class_="sidearm-calendar-list-group-list-game-team-title").find(['a', 'span']).text
+            if (away_team != team_data["name"] and home_team != team_data["name"]): continue
+
+            box_score_href = team_data["conference_base_url"] + tr.find("a", string="Box Score")["href"]
+
+            matches.append([home_team, away_team, box_score_href])
+
+    box_score_pdf_urls = []
+
+    for match in matches[(-1 * settings["box_scores"]["count"]):]:
+        driver.get(match[2])
+        time.sleep(1)
+        doc = BeautifulSoup(driver.page_source, "html.parser")
+
+        box_score_preview_url = team_data["conference_base_url"] + doc.find("div", id="print-bar").find("a")["href"]
+
+        driver.get(box_score_preview_url)
+        time.sleep(1)
+        doc = BeautifulSoup(driver.page_source, "html.parser")
+        box_score_pdf_url = doc.find("a", string="Open")["href"]
+
+        box_score_pdf_urls.append((match[0], match[1], box_score_pdf_url))
+
+    return box_score_pdf_urls

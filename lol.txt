@@ -1,7 +1,0 @@
-[
-    "https://assets.contentstack.io/v3/assets/bltca750cef518bc6e4/blt69728d7d0cbffda7/NU vs. IND 10_29_24.pdf",
-    "https://assets.contentstack.io/v3/assets/bltca750cef518bc6e4/blt7f20fd661cbcf691/TRINE vs. IND 11_1_24.pdf",
-    "https://assets.contentstack.io/v3/assets/bltca750cef518bc6e4/bltff94430fb85fdc92/MICH vs. IND 11_7_24.pdf",
-    "https://assets.contentstack.io/v3/assets/bltca750cef518bc6e4/bltc63b35f5df7e54da/AKR vs. IND 11_24_24.pdf",
-    "https://assets.contentstack.io/v3/assets/bltca750cef518bc6e4/blt5c6f301c9f44fca3/IND vs. DEN 11_30_24.pdf",
-]
