@@ -10,7 +10,7 @@ async def main():
 
     pdfkit_config = pdfkit.configuration(wkhtmltopdf=settings["paths"]["wkhtmltopdf"])
 
-    team_name = prompt()
+    team_name = prompt(settings)
 
     while (team_name != "Exit"):
         team_data = settings["teams"].get(team_name, None)
@@ -19,7 +19,7 @@ async def main():
             print("ERROR")
             print("ERROR: invalid team name")
             print("ERROR")
-            team_name = prompt()
+            team_name = prompt(settings)
 
             continue
 
@@ -33,7 +33,7 @@ async def main():
 
         print_stats(team_data, settings)
 
-        team_name = prompt()
+        team_name = prompt(settings)
 
     return
 

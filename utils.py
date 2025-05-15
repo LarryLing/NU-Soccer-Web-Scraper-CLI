@@ -1,12 +1,11 @@
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import ChromiumOptions
 from bs4 import BeautifulSoup
-from urllib.parse import parse_qs, urlparse
 import asyncio
+import time
 
-def prompt():
+def prompt(settings):
     """
     Prompts the user for a team name returns it.
     """
@@ -14,20 +13,10 @@ def prompt():
     try:
         print()
         print("Enter A Team:")
-        print("   Northwestern")
-        print("   Indiana")
-        print("   Ohio State")
-        print("   Maryland")
-        print("   Washington")
-        print("   UCLA")
-        print("   Michigan State")
-        print("   Michigan")
-        print("   Rutgers")
-        print("   Wisconsin")
-        print("   Penn State (not available)")
-        print("   UIC")
-        print("   Loyola")
-        print("   DePaul")
+
+        for team in settings["teams"].keys():
+            print(f"   {team}")
+
         print("   Exit")
 
         team_name = input()
