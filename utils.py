@@ -165,7 +165,7 @@ def process_table(table: Tag, ignore_columns: list[str]) -> tuple[str, list[str]
         ignore_columns (list[str]): List of table columns to ignore.
 
     Returns:
-        processed_table (tuple[str, list[str], list[list[str]]]): A processed tabled repesented as a tuple of the form (caption, columns, rows) where:
+        processed_table (tuple[str, list[str], list[list[str]]]): A processed table repesented as a tuple of the form (caption, columns, rows) where:
             caption (str): The caption of the table.
             columns (list[str]): List of column names.
             rows (list[list[str]]): List of rows, each row is a list of cell values.
@@ -219,7 +219,7 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, box_score_settings: dict[st
 
     return box_score_pdf_urls[(-1 * box_score_settings["count"]):]
 
-def get_sidearm_box_score_pdf_urls(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[str]:
+def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[tuple[str, str, str, str]]:
     """
     Get the URLs of the box scores from the conference websites provided by Sidearm.
 
@@ -230,7 +230,11 @@ def get_sidearm_box_score_pdf_urls(driver: webdriver.Chrome, team_data: dict[str
         box_score_settings (dict[str, any]): Dictionary containing box score settings.
 
     Returns:
-        list[str]: List of box score PDF URLs.
+        match_data (list[tuple[str, str, str, str]]): List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
+            home_team (str): Name of the home team.
+            away_team (str): Name of the away team.
+            date (str): The date of the match.
+            box_score_url (str): The box score PDF url.
     """
     matches = []
 
@@ -247,14 +251,17 @@ def get_sidearm_box_score_pdf_urls(driver: webdriver.Chrome, team_data: dict[str
             home_team = home_team_td.find("span", class_="sidearm-calendar-list-group-list-game-team-title").find(['a', 'span']).text
             if (away_team != team_data["name"] and home_team != team_data["name"]): continue
 
+            matchday_table_caption = matchday_table.find("caption")
+            date = matchday_table_caption.find("span", class_="hide-on-medium sidearm-calendar-list-group-heading-date").text.replace("/", "_")
+
             box_score_href = team_data["conference_base_url"] + tr.find("a", string="Box Score")["href"]
 
-            matches.append([home_team, away_team, box_score_href])
+            matches.append([home_team, away_team, date, box_score_href])
 
-    box_score_pdf_urls = []
+    match_data = []
 
     for match in matches[(-1 * box_score_settings["count"]):]:
-        driver.get(match[2])
+        driver.get(match[3])
         time.sleep(1)
         doc = BeautifulSoup(driver.page_source, "html.parser")
 
@@ -265,6 +272,6 @@ def get_sidearm_box_score_pdf_urls(driver: webdriver.Chrome, team_data: dict[str
         doc = BeautifulSoup(driver.page_source, "html.parser")
         box_score_pdf_url = doc.find("a", string="Open")["href"]
 
-        box_score_pdf_urls.append((match[0], match[1], box_score_pdf_url))
+        match_data.append((match[0], match[1], match[2], box_score_pdf_url))
 
-    return box_score_pdf_urls
+    return match_data

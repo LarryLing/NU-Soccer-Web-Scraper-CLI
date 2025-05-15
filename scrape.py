@@ -1,4 +1,4 @@
-from utils import create_html_tables, get_boost_box_score_pdf_urls, get_sidearm_box_score_pdf_urls, initialize_web_driver, process_tables
+from utils import create_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, process_tables
 from pdfkit.configuration import Configuration
 from bs4 import BeautifulSoup
 import asyncio
@@ -105,10 +105,10 @@ async def print_box_scores(team_data: dict[str, str], settings: dict[str, any]) 
             with open(output_path, 'wb') as file:
                 file.write(response.content)
     elif (team_data["conference_schedule_provider"] == "Sidearm"):
-        box_score_pdf_urls = get_sidearm_box_score_pdf_urls(driver, team_data, doc, settings["box_scores"])
+        match_data = get_sidearm_match_data(driver, team_data, doc, settings["box_scores"])
 
-        for home_team, away_team, box_score_pdf_url in box_score_pdf_urls:
-            filename = f"{home_team} vs {away_team} Box Score.pdf"
+        for home_team, away_team, date, box_score_pdf_url in match_data:
+            filename = f"{home_team} vs {away_team} {date}.pdf"
 
             response = requests.get(box_score_pdf_url)
             output_path = f"{settings["base_output_path"]}\\{team_data["name"]}\\{filename}"
