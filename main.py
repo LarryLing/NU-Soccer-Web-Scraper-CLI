@@ -6,11 +6,11 @@ import asyncio
 
 async def main():
     with open("settings.json", "r") as file:
-        settings = json.load(file)
+        settings: dict[str, any] = json.load(file)
 
-    pdfkit_config = pdfkit.configuration(wkhtmltopdf=settings["paths"]["wkhtmltopdf"])
+    pdfkit_config = pdfkit.configuration(wkhtmltopdf=settings["wkhtmltopdf"])
 
-    team_name = prompt(settings)
+    team_name = prompt(settings["teams"])
 
     while (team_name != "Exit"):
         team_data = settings["teams"].get(team_name, None)
@@ -19,7 +19,7 @@ async def main():
             print("ERROR")
             print("ERROR: invalid team name")
             print("ERROR")
-            team_name = prompt(settings)
+            team_name = prompt(settings["teams"])
 
             continue
 
@@ -33,7 +33,7 @@ async def main():
 
         print_stats(team_data, settings)
 
-        team_name = prompt(settings)
+        team_name = prompt(settings["teams"])
 
     return
 

@@ -1,10 +1,8 @@
 {
-    "paths": {
-        "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
-        "chromedriver": "chromedriver.exe",
-        "output": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder"
-    },
+    "output": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder",
+    "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
     "web_driver": {
+        "executable_path": "chromedriver.exe",
         "arguments": [
             "--headless",
             "--log-level=3"
