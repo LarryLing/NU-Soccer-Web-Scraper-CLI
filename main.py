@@ -3,14 +3,15 @@ from utils import prompt
 import pdfkit
 import json
 import asyncio
+import os
 
 async def main():
     with open("settings.json", "r") as file:
-        settings = json.load(file)
+        settings: dict[str, any] = json.load(file)
 
-    pdfkit_config = pdfkit.configuration(wkhtmltopdf=settings["paths"]["wkhtmltopdf"])
+    pdfkit_config = pdfkit.configuration(wkhtmltopdf=settings["wkhtmltopdf"])
 
-    team_name = prompt(settings)
+    team_name = prompt(settings["teams"])
 
     while (team_name != "Exit"):
         team_data = settings["teams"].get(team_name, None)
@@ -19,9 +20,12 @@ async def main():
             print("ERROR")
             print("ERROR: invalid team name")
             print("ERROR")
-            team_name = prompt(settings)
+            team_name = prompt(settings["teams"])
 
             continue
+
+        team_output_path = f"{settings["base_output_path"]}\\{team_data["name"]}"
+        if (not os.path.exists(team_output_path)): os.makedirs(team_output_path)
 
         promises = [
             print_roster(team_data, pdfkit_config, settings),
@@ -33,7 +37,7 @@ async def main():
 
         print_stats(team_data, settings)
 
-        team_name = prompt(settings)
+        team_name = prompt(settings["teams"])
 
     return
 

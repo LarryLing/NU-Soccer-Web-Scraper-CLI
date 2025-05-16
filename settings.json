@@ -1,28 +1,22 @@
 {
-    "paths": {
-        "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
-        "chromedriver": "chromedriver.exe",
-        "output": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder"
-    },
+    "base_output_path": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder",
+    "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
     "web_driver": {
+        "executable_path": "chromedriver.exe",
         "arguments": [
             "--headless",
             "--log-level=3"
         ]
     },
-    "roster": {
-        "ignore_columns": [
-            "Image",
-            "Twitter",
-            "Instagram",
-            "Major"
-        ]
-    },
-    "schedule": {
-        "ignore_columns": [
-            "Links"
-        ]
-    },
+    "ignore_roster_columns": [
+        "Image",
+        "Twitter",
+        "Instagram",
+        "Major"
+    ],
+    "ignore_schedule_columns": [
+        "Links"
+    ],
     "stats": {
         "years": [
             "2024",
@@ -126,7 +120,7 @@
             "conference_schedule_url": "https://bigten.org/msoc/schedule/?teamFilter=MICH"
         },
         "Rutgers": {
-            "name": "Rutgers Scarlet",
+            "name": "Rutgers",
             "abbreviation": "RU",
             "base_website_type": 2,
             "hostname": "scarletknights.com",
@@ -160,7 +154,7 @@
         },
         "UIC": {
             "name": "UIC",
-            "abbreviation": "NIU",
+            "abbreviation": "UIC",
             "base_website_type": 2,
             "hostname": "uicflames.com",
             "roster_url": "https://uicflames.com/sports/mens-soccer/roster?print=true",
@@ -169,7 +163,7 @@
             "conference_base_url": "https://mvc-sports.com",
             "conference_schedule_url": "https://mvc-sports.com/calendar.aspx?path=msoc"
         },
-        "Loyola": {
+        "Loyola Chicago": {
             "name": "Loyola Chicago",
             "abbreviation": "LUC",
             "base_website_type": 2,
@@ -191,7 +185,7 @@
             "conference_base_url": "https://www.bigeast.com",
             "conference_schedule_url": "https://www.bigeast.com/calendar.aspx?path=msoc"
         },
-        "NIU": {
+        "Northern Illinois": {
             "name": "Northern Illinois",
             "abbreviation": "NIU",
             "base_website_type": 2,

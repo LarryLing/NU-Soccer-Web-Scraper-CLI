@@ -1,20 +1,25 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import ChromiumOptions
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import asyncio
 import time
 
-def prompt(settings):
+def prompt(teams: dict[str, dict[str, any]]) -> str:
     """
     Prompts the user for a team name returns it.
-    """
 
+    Args:
+        teams (dict[str, dict[str, any]]): Dictionary containing settings.
+
+    Returns:
+        team_name (str): The name of the team.
+    """
     try:
         print()
         print("Enter A Team:")
 
-        for team in settings["teams"].keys():
+        for team in teams.keys():
             print(f"   {team}")
 
         print("   Exit")
@@ -28,19 +33,38 @@ def prompt(settings):
         print("ERROR")
         return -1
 
-def initialize_web_driver(settings):
-    service = Service(executable_path=settings["paths"]["chromedriver"])
+def initialize_web_driver(web_driver_settings: dict[str, any]) -> webdriver.Chrome:
+    """
+    Initializes a new web driver instance.
+
+    Args:
+        web_driver_settings (dict[str, Any]): Dictionary containing web driver settings.
+
+    Returns:
+        driver (WebDriver): A new web driver instance.
+    """
+    service = Service(executable_path=web_driver_settings["executable_path"])
 
     chrome_options = ChromiumOptions()
 
-    for arg in settings["web_driver"]["arguments"]:
+    for arg in web_driver_settings["arguments"]:
         chrome_options.add_argument(arg)
 
     return webdriver.Chrome(service=service, options=chrome_options)
 
-def create_html_tables(title, tables):
+def create_html_tables(title: str, tables: list[tuple[str, list[str], list[list[str]]]]) -> str:
     """
     Initialize a HTML table.
+
+    Args:
+        title (str): Title for the HTML document.
+        tables (list[tuple[str, list[str], list[list[str]]]]): List of processed tables repesented as a tuple of the form (caption, columns, rows) where:
+            caption (str): The caption of the table.
+            columns (list[str]): List of column names.
+            rows (list[list[str]]): List of rows, each row is a list of cell values.
+
+    Returns:
+        str: A string representation of the HTML document.
     """
 
     html = f"""
@@ -73,28 +97,24 @@ def create_html_tables(title, tables):
         div_tag = doc.new_tag("div")
         main.append(div_tag)
 
-        # Insert the table caption
-        if (table["caption"]):
-            h3_tag = doc.new_tag("h3", string=table["caption"])
+        if (table[0]):
+            h3_tag = doc.new_tag("h3", string=table[0])
             div_tag.append(h3_tag)
 
-        # Insert the table
         table_tag = doc.new_tag("table")
         div_tag.append(table_tag)
 
-        # Insert the table header
         thead_tag = doc.new_tag("thead")
 
-        for column in table["columns"]:
+        for column in table[1]:
             th = doc.new_tag("th", string=column)
             thead_tag.append(th)
 
         table_tag.append(thead_tag)
 
-        # Insert the table body
         tbody_tag = doc.new_tag("tbody")
 
-        for row in table["rows"]:
+        for row in table[2]:
             tr = doc.new_tag("tr")
             for cell in row:
                 td = doc.new_tag("td", string=cell)
@@ -105,11 +125,21 @@ def create_html_tables(title, tables):
 
     return doc.prettify()
 
-async def process_tables(driver, url, ignore_columns):
+async def process_tables(driver: webdriver.Chrome, url: str, ignore_columns: list[str]) -> list[tuple[str, list[str], list[list[str]]]]:
     """
-    Process the tables from the pages.
-    """
+    Process every table on the page.
 
+    Args:
+        driver (WebDriver): The web driver instance.
+        url (str): The URL of the page to scrape.
+        ignore_columns (list[str]): List of table columns to ignore.
+
+    Returns:
+        processed_tables (list[tuple[str, list[str], list[list[str]]]]): List of processed tables repesented as a tuple of the form (caption, columns, rows) where:
+            caption (str): The caption of the table.
+            columns (list[str]): List of column names.
+            rows (list[list[str]]): List of rows, each row is a list of cell values.
+    """
     driver.get(url)
 
     await asyncio.sleep(1)
@@ -126,22 +156,28 @@ async def process_tables(driver, url, ignore_columns):
 
     return proccessed_tables
 
-def process_table(table, ignore_columns):
+def process_table(table: Tag, ignore_columns: list[str]) -> tuple[str, list[str], list[list[str]]] | None:
     """
-    Process the table from the page.
-    """
+    Process a single table on the page.
 
-    # Get the table caption
+    Args:
+        table (Tag): The table element to process.
+        ignore_columns (list[str]): List of table columns to ignore.
+
+    Returns:
+        processed_table (tuple[str, list[str], list[list[str]]]): A processed table repesented as a tuple of the form (caption, columns, rows) where:
+            caption (str): The caption of the table.
+            columns (list[str]): List of column names.
+            rows (list[list[str]]): List of rows, each row is a list of cell values.
+    """
     processed_caption = None
 
     caption = table.find("caption")
     if (caption): processed_caption = caption.text
 
-    # Get the table columns
     thead = table.find("thead")
     if (thead is None): return None
 
-    # Get the column names and indexes of the columns to ignore
     ignore_column_indexes = []
     processed_columns = []
 
@@ -152,7 +188,6 @@ def process_table(table, ignore_columns):
 
         processed_columns.append(th.text)
 
-    # Get the table content
     processed_rows = []
 
     tbody = table.find("tbody")
@@ -161,33 +196,46 @@ def process_table(table, ignore_columns):
     for child in tbody.children:
         if (child.name != "tr"): continue
 
-        # Get content of the rows, ignore row entirely if it contains "Skip Ad". Also skip cells if their index is in ignore_column_indexes
         row = [cell.text for index, cell in enumerate(child.find_all("td")) if (cell.text != "Skip Ad") and (index not in ignore_column_indexes)]
 
         processed_rows.append(row)
 
-    return {
-        "caption": processed_caption,
-        "columns": processed_columns,
-        "rows": processed_rows
-    }
+    return processed_caption, processed_columns, processed_rows
 
-def get_boost_box_score_pdf_urls(doc, settings):
+def get_boost_box_score_pdf_urls(doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[str]:
     """
     Get the URLs of the box scores from the conference websites provided by Boost.
-    """
 
+    Args:
+        doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
+        box_score_settings (dict[str, any]): Dictionary containing box score settings.
+
+    Returns:
+        list[str]: List of box score PDF URLs.
+    """
     schedule_table = doc.find("table")
 
     box_score_pdf_urls = [a["href"] for a in schedule_table.find_all("a", string="Box Score")]
 
-    return box_score_pdf_urls[(-1 * settings["box_scores"]["count"]):]
+    return box_score_pdf_urls[(-1 * box_score_settings["count"]):]
 
-def get_sidearm_box_score_pdf_urls(driver, team_data, doc, settings):
+def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[tuple[str, str, str, str]]:
     """
     Get the URLs of the box scores from the conference websites provided by Sidearm.
-    """
 
+    Args:
+        driver (WebDriver): The web driver instance.
+        team_data (dict[str, str]): Dictionary containing team data.
+        doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
+        box_score_settings (dict[str, any]): Dictionary containing box score settings.
+
+    Returns:
+        match_data (list[tuple[str, str, str, str]]): List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
+            home_team (str): Name of the home team.
+            away_team (str): Name of the away team.
+            date (str): The date of the match.
+            box_score_url (str): The box score PDF url.
+    """
     matches = []
 
     matchday_tables = doc.find_all("table")
@@ -203,14 +251,17 @@ def get_sidearm_box_score_pdf_urls(driver, team_data, doc, settings):
             home_team = home_team_td.find("span", class_="sidearm-calendar-list-group-list-game-team-title").find(['a', 'span']).text
             if (away_team != team_data["name"] and home_team != team_data["name"]): continue
 
+            matchday_table_caption = matchday_table.find("caption")
+            date = matchday_table_caption.find("span", class_="hide-on-medium sidearm-calendar-list-group-heading-date").text.replace("/", "_")
+
             box_score_href = team_data["conference_base_url"] + tr.find("a", string="Box Score")["href"]
 
-            matches.append([home_team, away_team, box_score_href])
+            matches.append([home_team, away_team, date, box_score_href])
 
-    box_score_pdf_urls = []
+    match_data = []
 
-    for match in matches[(-1 * settings["box_scores"]["count"]):]:
-        driver.get(match[2])
+    for match in matches[(-1 * box_score_settings["count"]):]:
+        driver.get(match[3])
         time.sleep(1)
         doc = BeautifulSoup(driver.page_source, "html.parser")
 
@@ -221,6 +272,6 @@ def get_sidearm_box_score_pdf_urls(driver, team_data, doc, settings):
         doc = BeautifulSoup(driver.page_source, "html.parser")
         box_score_pdf_url = doc.find("a", string="Open")["href"]
 
-        box_score_pdf_urls.append((match[0], match[1], box_score_pdf_url))
+        match_data.append((match[0], match[1], match[2], box_score_pdf_url))
 
-    return box_score_pdf_urls
+    return match_data
