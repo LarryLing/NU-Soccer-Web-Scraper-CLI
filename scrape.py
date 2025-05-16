@@ -116,5 +116,3 @@ async def print_box_scores(team_data: dict[str, str], settings: dict[str, any]) 
                 file.write(response.content)
 
     driver.quit()
-
-
