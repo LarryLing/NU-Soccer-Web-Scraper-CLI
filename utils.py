@@ -1,9 +1,12 @@
+import asyncio
+import time
+import tkinter as tk
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import ChromiumOptions
 from bs4 import BeautifulSoup, Tag
-import asyncio
-import time
+from tkinter import filedialog
 
 def prompt(teams: dict[str, dict[str, any]]) -> str:
     """
@@ -33,22 +36,38 @@ def prompt(teams: dict[str, dict[str, any]]) -> str:
         print("ERROR")
         return -1
 
-def initialize_web_driver(web_driver_settings: dict[str, any]) -> webdriver.Chrome:
+def select_output_folder() -> str:
+    """
+    Opens the file dialog, allowing users to select an output folder.
+
+    Args:
+        None
+
+    Returns:
+        folder_path (str): The full path to the selected folder.
+    """
+    root = tk.Tk()
+    root.withdraw()
+    folder_path = filedialog.askdirectory(master=root)
+    root.destroy()
+
+    return folder_path
+
+def initialize_web_driver() -> webdriver.Chrome:
     """
     Initializes a new web driver instance.
 
     Args:
-        web_driver_settings (dict[str, Any]): Dictionary containing web driver settings.
+        None
 
     Returns:
         driver (WebDriver): A new web driver instance.
     """
-    service = Service(executable_path=web_driver_settings["executable_path"])
+    service = Service(executable_path="chromedriver.exe")
 
     chrome_options = ChromiumOptions()
-
-    for arg in web_driver_settings["arguments"]:
-        chrome_options.add_argument(arg)
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--log-level=3")
 
     return webdriver.Chrome(service=service, options=chrome_options)
 
@@ -202,13 +221,13 @@ def process_table(table: Tag, ignore_columns: list[str]) -> tuple[str, list[str]
 
     return processed_caption, processed_columns, processed_rows
 
-def get_boost_box_score_pdf_urls(doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[str]:
+def get_boost_box_score_pdf_urls(doc: BeautifulSoup, count: int) -> list[str]:
     """
     Get the URLs of the box scores from the conference websites provided by Boost.
 
     Args:
         doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
-        box_score_settings (dict[str, any]): Dictionary containing box score settings.
+        count (int): The number of box scores to print
 
     Returns:
         list[str]: List of box score PDF URLs.
@@ -217,9 +236,9 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, box_score_settings: dict[st
 
     box_score_pdf_urls = [a["href"] for a in schedule_table.find_all("a", string="Box Score")]
 
-    return box_score_pdf_urls[(-1 * box_score_settings["count"]):]
+    return box_score_pdf_urls[(-1 * count):]
 
-def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, box_score_settings: dict[str, any]) -> list[tuple[str, str, str, str]]:
+def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, count: int) -> list[tuple[str, str, str, str]]:
     """
     Get the URLs of the box scores from the conference websites provided by Sidearm.
 
@@ -227,7 +246,7 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
         driver (WebDriver): The web driver instance.
         team_data (dict[str, str]): Dictionary containing team data.
         doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
-        box_score_settings (dict[str, any]): Dictionary containing box score settings.
+        count (int): The number of box scores to print
 
     Returns:
         match_data (list[tuple[str, str, str, str]]): List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
@@ -260,7 +279,7 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
 
     match_data = []
 
-    for match in matches[(-1 * box_score_settings["count"]):]:
+    for match in matches[(-1 * count):]:
         driver.get(match[3])
         time.sleep(1)
         doc = BeautifulSoup(driver.page_source, "html.parser")

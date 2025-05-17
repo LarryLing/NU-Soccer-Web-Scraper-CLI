@@ -1,13 +1,4 @@
 {
-    "base_output_path": "C:\\Users\\mrcra\\Desktop\\Productivity\\Coding\\Python\\NewFolder",
-    "wkhtmltopdf": "wkhtmltopdf\\bin\\wkhtmltopdf.exe",
-    "web_driver": {
-        "executable_path": "chromedriver.exe",
-        "arguments": [
-            "--headless",
-            "--log-level=3"
-        ]
-    },
     "data_options": [
         "Roster",
         "Schedule",
@@ -24,22 +15,11 @@
     "ignore_schedule_columns": [
         "Links"
     ],
-    "stats": {
-        "years": [
-            "2024",
-            "2023",
-            "2022",
-            "2021",
-            "2020"
-        ],
-        "prompts": [
-            "Download PDF",
-            "Download Document"
-        ]
-    },
-    "box_scores": {
-        "count": 5
-    },
+    "stats_years": [
+        "2025",
+        "2024",
+        "2023"
+    ],
     "teams": {
         "Northwestern": {
             "name": "Northwestern",
@@ -156,7 +136,7 @@
             "abbreviation": "PSU",
             "base_website_type": 3,
             "hostname": "gopsusports.com",
-            "roster_url": "https://gopsusports.com/sports/mens-soccer/roster",
+            "roster_url": "https://gopsusports.com/sports/mens-soccer/roster?view=table",
             "schedule_url": "https://gopsusports.com/sports/mens-soccer/schedule/print",
             "conference_schedule_provider": "Boost",
             "conference_base_url": "https://bigten.org",
