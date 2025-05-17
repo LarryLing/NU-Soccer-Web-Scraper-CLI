@@ -104,12 +104,12 @@ if (scrape_button):
             promises.append(download_tables(team_data["schedule_url"], output_file, settings["ignore_schedule_columns"], pdfkit_config))
 
         if ("Box Scores" in data_to_scrape):
-            promises.append(download_box_scores(team_data, count, output_folder_path, settings))
+            promises.append(download_box_scores(team_data, count, output_folder_path))
 
         await asyncio.gather(*promises)
 
         if ("Stats" in data_to_scrape):
-            download_stats(team_data, years, output_folder_path, settings)
+            download_stats(team_data, years, output_folder_path)
 
     asyncio.run(download_data())
 

@@ -10,13 +10,15 @@ from pdfkit.configuration import Configuration
 
 async def download_tables(url: str, output_file_path: str, ignore_columns: list[str], pdfkit_config: Configuration) -> dict[str, str]:
     """
-    Print the roster page to a PDF file.
+    Download the roster page to a PDF file.
 
     Args:
         url (str): URL of the site.
+        output_file_path (str): Path to the downloaded PDF file.
+        ignore_columns: (list[str]): List of columns to ignore.
 
     Returns:
-        table_content (dict[str, str]): A dictionary of content from the HTML tables.
+        None
     """
     driver = initialize_web_driver()
     driver.get(url)

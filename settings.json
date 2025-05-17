@@ -137,7 +137,7 @@
             "base_website_type": 3,
             "hostname": "gopsusports.com",
             "roster_url": "https://gopsusports.com/sports/mens-soccer/roster?view=table",
-            "schedule_url": "https://gopsusports.com/sports/mens-soccer/schedule/print",
+            "schedule_url": "https://gopsusports.com/sports/mens-soccer/schedule?view=list",
             "conference_schedule_provider": "Boost",
             "conference_base_url": "https://bigten.org",
             "conference_schedule_url": "https://bigten.org/msoc/schedule/?teamFilter=PSU"

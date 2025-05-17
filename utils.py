@@ -76,13 +76,10 @@ def insert_html_tables(title: str, html_tables: list[str]) -> str:
 
     Args:
         title (str): Title for the HTML document.
-        tables (list[tuple[str, list[str], list[list[str]]]]): List of processed tables repesented as a tuple of the form (caption, columns, rows) where:
-            caption (str): The caption of the table.
-            columns (list[str]): List of column names.
-            rows (list[list[str]]): List of rows, each row is a list of cell values.
+        html_tables (list[str]): List of HTML strings containing tables to insert
 
     Returns:
-        str: A string representation of the HTML document.
+        str: A string representation of the full .HTML document.
     """
 
     html = f"""
