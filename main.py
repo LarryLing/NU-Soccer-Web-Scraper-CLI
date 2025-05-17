@@ -1,12 +1,15 @@
 import asyncio
+import pdfkit
 import streamlit as st
 import json
 
-from scrape import download_box_scores, download_roster, download_schedule, download_stats
+from scrape import download_box_scores, download_stats, download_tables
 from utils import select_output_folder
 
 with open("settings.json", "r") as file:
     settings: dict[str, any] = json.load(file)
+
+pdfkit_config = pdfkit.configuration(wkhtmltopdf="wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
 st.title = "NU Soccer Web Scraper"
 
@@ -93,10 +96,12 @@ if (scrape_button):
         promises = []
 
         if ("Roster" in data_to_scrape):
-            promises.append(download_roster(team_data, output_folder_path, settings))
+            output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Roster.pdf"
+            promises.append(download_tables(team_data["roster_url"], output_file, settings["ignore_roster_columns"], pdfkit_config))
 
         if ("Schedule" in data_to_scrape):
-            promises.append(download_schedule(team_data, output_folder_path, settings))
+            output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Schedule.pdf"
+            promises.append(download_tables(team_data["schedule_url"], output_file, settings["ignore_schedule_columns"], pdfkit_config))
 
         if ("Box Scores" in data_to_scrape):
             promises.append(download_box_scores(team_data, count, output_folder_path, settings))

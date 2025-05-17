@@ -1,57 +1,42 @@
 import asyncio
 import pdfkit
 import requests
+import pandas as pd
 
-from utils import create_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, process_tables
+from io import StringIO
+from utils import insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver
 from bs4 import BeautifulSoup
+from pdfkit.configuration import Configuration
 
-async def download_roster(team_data: dict[str, str], output_folder_path: str, settings: dict[str, any]) -> None:
+async def download_tables(url: str, output_file_path: str, ignore_columns: list[str], pdfkit_config: Configuration) -> dict[str, str]:
     """
     Print the roster page to a PDF file.
 
     Args:
-        team_data (dict[str, str]): Dictionary containing team data.
-        output_folder_path (str): Path to the output folder.
-        settings (dict[str, Any]): Dictionary containing settings.
+        url (str): URL of the site.
 
     Returns:
-        None
+        table_content (dict[str, str]): A dictionary of content from the HTML tables.
     """
     driver = initialize_web_driver()
+    driver.get(url)
+    await asyncio.sleep(1)
 
-    processed_tables = await process_tables(driver, team_data["roster_url"], settings["ignore_roster_columns"])
+    doc = BeautifulSoup(driver.page_source, "lxml")
 
-    driver.quit()
+    extracted_tables = [StringIO(str(table)) for table in doc(["table"]) if (table.find("thead"))]
 
-    title = f"{team_data["name"]} Mens Soccer Roster"
-    html = create_html_tables(title, processed_tables)
+    html_tables = []
+    for extracted_table in extracted_tables:
+        dataframe = pd.read_html(extracted_table)[0]
+        dataframe = dataframe.drop(columns=ignore_columns, errors="ignore")
+        dataframe = dataframe.fillna("")
 
-    pdfkit_config = pdfkit.configuration(wkhtmltopdf="wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-    pdfkit.from_string(html, output_folder_path, configuration=pdfkit_config)
+        html_tables.append(dataframe.to_html(index=False))
 
-async def download_schedule(team_data: dict[str, str], output_folder_path: str, settings: dict[str, any]) -> None:
-    """
-    Print the schedule page to a PDF file.
+    full_html = insert_html_tables(doc.find("title"), html_tables)
 
-    Args:
-        team_data (dict[str, str]): Dictionary containing team data.
-        output_folder_path (str): Path to the output folder.
-        settings (dict[str, Any]): Dictionary containing settings.
-
-    Returns:
-        None
-    """
-    driver = initialize_web_driver()
-
-    processed_tables = await process_tables(driver, team_data["schedule_url"], settings["ignore_schedule_columns"])
-
-    driver.quit()
-
-    title = f"{team_data["name"]} Mens Soccer Schedule"
-    html = create_html_tables(title, processed_tables)
-
-    pdfkit_config = pdfkit.configuration(wkhtmltopdf="wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-    pdfkit.from_string(html, output_folder_path, configuration=pdfkit_config)
+    pdfkit.from_string(full_html, output_file_path, configuration=pdfkit_config)
 
 def download_stats(team_data: dict[str, str], years: int, output_folder_path: str) -> None:
     """
