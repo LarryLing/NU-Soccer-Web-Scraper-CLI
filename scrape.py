@@ -3,19 +3,18 @@ import pdfkit
 import requests
 import pandas as pd
 
-from io import StringIO
-from utils import insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver
+from utils import insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, sanitize_table
 from bs4 import BeautifulSoup
 from pdfkit.configuration import Configuration
 
-async def download_tables(url: str, output_file_path: str, ignore_columns: list[str], pdfkit_config: Configuration) -> dict[str, str]:
+async def download_tables(url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> dict[str, str]:
     """
     Download the roster page to a PDF file.
 
     Args:
         url (str): URL of the site.
         output_file_path (str): Path to the downloaded PDF file.
-        ignore_columns: (list[str]): List of columns to ignore.
+        ignored_columns: (list[str]): List of columns to ignore.
 
     Returns:
         None
@@ -26,12 +25,18 @@ async def download_tables(url: str, output_file_path: str, ignore_columns: list[
 
     doc = BeautifulSoup(driver.page_source, "lxml")
 
-    extracted_tables = [StringIO(str(table)) for table in doc(["table"]) if (table.find("thead"))]
+    extracted_tables = []
+    for table in doc(["table"]):
+        if (not table.find("thead")):
+            continue
+
+        sanitized_table = sanitize_table(str(table))
+        extracted_tables.append(sanitized_table)
 
     html_tables = []
     for extracted_table in extracted_tables:
         dataframe = pd.read_html(extracted_table)[0]
-        dataframe = dataframe.drop(columns=ignore_columns, errors="ignore")
+        dataframe = dataframe.drop(columns=ignored_columns, errors="ignore")
         dataframe = dataframe.fillna("")
 
         html_tables.append(dataframe.to_html(index=False))
@@ -53,12 +58,21 @@ def download_stats(team_data: dict[str, str], years: int, output_folder_path: st
         None
     """
     for year in years:
+        stats_url = None
+
         if (team_data["base_website_type"] == 1):
             stats_url = f"https://dxbhsrqyrr690.cloudfront.net/sidearm.nextgen.sites/{team_data["hostname"]}/stats/msoc/{year}/pdf/cume.pdf"
         elif (team_data["base_website_type"] == 2):
             stats_url = f"https://s3.us-east-2.amazonaws.com/sidearm.nextgen.sites/{team_data["hostname"]}/stats/msoc/{year}/pdf/cume.pdf"
 
+        if (not stats_url):
+            continue
+
         response = requests.get(stats_url)
+
+        if (response.status_code == 404):
+            continue
+
         output_path = f"{output_folder_path}\\{team_data["abbreviation"]} {year} Stats.pdf"
 
         with open(output_path, 'wb') as file:

@@ -1,3 +1,4 @@
+from io import StringIO
 import time
 import tkinter as tk
 
@@ -70,13 +71,32 @@ def initialize_web_driver() -> webdriver.Chrome:
 
     return webdriver.Chrome(service=service, options=chrome_options)
 
+def sanitize_table(table: str) -> StringIO:
+    """
+    Cleans up the table to delete filler content.
+
+    Args:
+        table (str): The unsanitized HTML table.
+
+    Returns:
+        sanitized_table (StringIO): The sanitized HTML table, converted into a StringIO type
+    """
+    table = BeautifulSoup(table, "lxml")
+
+    table_rows = table(["tr"])
+    for table_row in table_rows:
+        if ("skip ad" in table_row.get_text().lower()):
+            table_row.extract()
+
+    return StringIO(str(table))
+
 def insert_html_tables(title: str, html_tables: list[str]) -> str:
     """
     Initialize a HTML table.
 
     Args:
         title (str): Title for the HTML document.
-        html_tables (list[str]): List of HTML strings containing tables to insert
+        html_tables (list[str]): List of HTML strings containing tables to insert.
 
     Returns:
         str: A string representation of the full .HTML document.
@@ -123,7 +143,7 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, count: int) -> list[str]:
 
     Args:
         doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
-        count (int): The number of box scores to print
+        count (int): The number of box scores to print.
 
     Returns:
         list[str]: List of box score PDF URLs.
@@ -142,7 +162,7 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
         driver (WebDriver): The web driver instance.
         team_data (dict[str, str]): Dictionary containing team data.
         doc (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
-        count (int): The number of box scores to print
+        count (int): The number of box scores to print.
 
     Returns:
         match_data (list[tuple[str, str, str, str]]): List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
