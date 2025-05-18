@@ -1,3 +1,4 @@
+import asyncio
 from io import StringIO
 import time
 import tkinter as tk
@@ -16,7 +17,7 @@ def prompt(teams: dict[str, dict[str, any]]) -> str:
         teams (dict[str, dict[str, any]]): Dictionary containing settings.
 
     Returns:
-        team_name (str): The name of the team.
+        str: The name of the team.
     """
     try:
         print()
@@ -44,7 +45,7 @@ def select_output_folder() -> str:
         None
 
     Returns:
-        folder_path (str): The full path to the selected folder.
+        str: The full path to the selected folder.
     """
     root = tk.Tk()
     root.withdraw()
@@ -61,7 +62,7 @@ def initialize_web_driver() -> webdriver.Chrome:
         None
 
     Returns:
-        driver (WebDriver): A new web driver instance.
+        WebDriver: A new web driver instance.
     """
     service = Service(executable_path="chromedriver.exe")
 
@@ -79,7 +80,7 @@ def sanitize_table(table: str) -> StringIO:
         table (str): The unsanitized HTML table.
 
     Returns:
-        sanitized_table (StringIO): The sanitized HTML table, converted into a StringIO type
+        StringIO: The sanitized HTML table, converted into a StringIO type
     """
     table = BeautifulSoup(table, "lxml")
 
@@ -137,6 +138,38 @@ def insert_html_tables(title: str, html_tables: list[str]) -> str:
 
     return str(doc)
 
+async def find_penn_state_stats_url(url: str) -> str:
+    """
+    Get the URLs of the stats PDF for Penn State.
+
+    Args:
+        url (str): The base URL of Penn State's Mens Soccer
+
+    Returns:
+        str: The URL of the stats PDF for Penn State.
+    """
+    driver = initialize_web_driver()
+    driver.get(url)
+    await asyncio.sleep(1)
+
+    doc = BeautifulSoup(driver.page_source, "lxml")
+
+    ul = doc.find("ul", class_="menu menu--level-0 menu--sport")
+    li = ul.find_all("li", class_="menu-item menu-item--static-url menu-item--show-on-mobile menu-item--show-on-desktop menu__item")[5]
+    stats_url = li.find("a")["href"]
+
+    driver.get(stats_url)
+    await asyncio.sleep(1)
+
+    doc = BeautifulSoup(driver.page_source, "lxml")
+
+    div = doc.find("div", class_="container pdf-block__container")
+    stats_pdf_url = div.find("a")["href"]
+
+    driver.quit()
+
+    return stats_pdf_url
+
 def get_boost_box_score_pdf_urls(doc: BeautifulSoup, count: int) -> list[str]:
     """
     Get the URLs of the box scores from the conference websites provided by Boost.
@@ -165,7 +198,7 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
         count (int): The number of box scores to print.
 
     Returns:
-        match_data (list[tuple[str, str, str, str]]): List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
+        list[tuple[str, str, str, str]]: List of match data represented as a tuple of the form (home_team, away_team, date, box_score_url) where:
             home_team (str): Name of the home team.
             away_team (str): Name of the away team.
             date (str): The date of the match.

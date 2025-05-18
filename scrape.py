@@ -3,11 +3,11 @@ import pdfkit
 import requests
 import pandas as pd
 
-from utils import insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, sanitize_table
+from utils import find_penn_state_stats_url, insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, sanitize_table
 from bs4 import BeautifulSoup
 from pdfkit.configuration import Configuration
 
-async def download_tables(url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> dict[str, str]:
+async def download_tables(url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> None:
     """
     Download the roster page to a PDF file.
 
@@ -24,6 +24,8 @@ async def download_tables(url: str, output_file_path: str, ignored_columns: list
     await asyncio.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "lxml")
+
+    driver.quit()
 
     extracted_tables = []
     for table in doc(["table"]):
@@ -45,18 +47,34 @@ async def download_tables(url: str, output_file_path: str, ignored_columns: list
 
     pdfkit.from_string(full_html, output_file_path, configuration=pdfkit_config)
 
-def download_stats(team_data: dict[str, str], years: int, output_folder_path: str) -> None:
+async def download_stats(team_data: dict[str, str], years: list[int], output_folder_path: str) -> None:
     """
     Print a team's season stats to a PDF file.
 
     Args:
         team_data (dict[str, str]): Dictionary containing team data.
-        years (int): Years for which to print stats for.
+        years (list[int]): Years for which to print stats for.
         output_folder_path (str): Path to the output folder.
 
     Returns:
         None
     """
+    if (team_data["name"] == "Penn State"):
+        url = f"https://{team_data["hostname"]}/sports/mens-soccer"
+        stats_url = await find_penn_state_stats_url(url)
+
+        response = requests.get(stats_url)
+
+        if (response.status_code == 404):
+            return
+
+        output_path = f"{output_folder_path}\\{team_data["abbreviation"]} Stats.pdf"
+
+        with open(output_path, 'wb') as file:
+            file.write(response.content)
+
+        return
+
     for year in years:
         stats_url = None
 
@@ -64,9 +82,6 @@ def download_stats(team_data: dict[str, str], years: int, output_folder_path: st
             stats_url = f"https://dxbhsrqyrr690.cloudfront.net/sidearm.nextgen.sites/{team_data["hostname"]}/stats/msoc/{year}/pdf/cume.pdf"
         elif (team_data["base_website_type"] == 2):
             stats_url = f"https://s3.us-east-2.amazonaws.com/sidearm.nextgen.sites/{team_data["hostname"]}/stats/msoc/{year}/pdf/cume.pdf"
-
-        if (not stats_url):
-            continue
 
         response = requests.get(stats_url)
 

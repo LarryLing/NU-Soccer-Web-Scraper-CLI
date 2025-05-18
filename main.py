@@ -128,10 +128,10 @@ if (scrape_button):
         if ("Box Scores" in data_to_scrape):
             promises.append(download_box_scores(team_data, count, output_folder_path))
 
-        await asyncio.gather(*promises)
-
         if ("Stats" in data_to_scrape):
-            download_stats(team_data, years, output_folder_path)
+            promises.append(download_stats(team_data, years, output_folder_path))
+
+        await asyncio.gather(*promises)
 
     asyncio.run(download_data())
 
