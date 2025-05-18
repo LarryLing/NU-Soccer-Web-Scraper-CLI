@@ -2,16 +2,19 @@ import asyncio
 import pdfkit
 import requests
 import pandas as pd
+import streamlit as st
 
 from utils import find_penn_state_stats_url, insert_html_tables, get_boost_box_score_pdf_urls, get_sidearm_match_data, initialize_web_driver, sanitize_table
 from bs4 import BeautifulSoup
 from pdfkit.configuration import Configuration
 
-async def download_tables(url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> None:
+async def download_tables(team_name: str, type: str, url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> None:
     """
     Download the roster page to a PDF file.
 
     Args:
+        team_name (str): Name of the team.
+        type (str): Type of table(s) to download. Either "roster" or "schedule".
         url (str): URL of the site.
         output_file_path (str): Path to the downloaded PDF file.
         ignored_columns: (list[str]): List of columns to ignore.
@@ -19,6 +22,8 @@ async def download_tables(url: str, output_file_path: str, ignored_columns: list
     Returns:
         None
     """
+    st.write(f"Downloading {team_name}'s {type}...")
+
     driver = initialize_web_driver()
     driver.get(url)
     await asyncio.sleep(1)
@@ -47,6 +52,8 @@ async def download_tables(url: str, output_file_path: str, ignored_columns: list
 
     pdfkit.from_string(full_html, output_file_path, configuration=pdfkit_config)
 
+    st.write(f"Finished downloading {team_name}'s {type}!")
+
 async def download_stats(team_data: dict[str, str], years: list[int], output_folder_path: str) -> None:
     """
     Print a team's season stats to a PDF file.
@@ -59,6 +66,8 @@ async def download_stats(team_data: dict[str, str], years: list[int], output_fol
     Returns:
         None
     """
+    st.write(f"Downloading {team_data["name"]}'s stats...")
+
     if (team_data["name"] == "Penn State"):
         url = f"https://{team_data["hostname"]}/sports/mens-soccer"
         stats_url = await find_penn_state_stats_url(url)
@@ -73,6 +82,7 @@ async def download_stats(team_data: dict[str, str], years: list[int], output_fol
         with open(output_path, 'wb') as file:
             file.write(response.content)
 
+        st.write(f"Finished downloading {team_data["name"]}'s stats!")
         return
 
     for year in years:
@@ -93,6 +103,8 @@ async def download_stats(team_data: dict[str, str], years: list[int], output_fol
         with open(output_path, 'wb') as file:
             file.write(response.content)
 
+    st.write(f"Finished downloading {team_data["name"]}'s stats!")
+
 async def download_box_scores(team_data: dict[str, str], count: int, output_folder_path: str) -> None:
     """
     Print box scores into respective PDF files.
@@ -105,6 +117,7 @@ async def download_box_scores(team_data: dict[str, str], count: int, output_fold
     Returns:
         None
     """
+    st.write(f"Downloading {team_data["name"]}'s box scores...")
 
     driver = initialize_web_driver()
     driver.get(team_data["conference_schedule_url"])
@@ -137,3 +150,5 @@ async def download_box_scores(team_data: dict[str, str], count: int, output_fold
                 file.write(response.content)
 
     driver.quit()
+
+    st.write(f"Finished downloading {team_data["name"]}'s box scores!")
