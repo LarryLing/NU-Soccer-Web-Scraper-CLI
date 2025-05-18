@@ -185,6 +185,7 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, count: int) -> list[str]:
 
     box_score_pdf_urls = [a["href"] for a in schedule_table.find_all("a", string="Box Score")]
 
+    count = min(len(box_score_pdf_urls, count))
     return box_score_pdf_urls[(-1 * count):]
 
 def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, count: int) -> list[tuple[str, str, str, str]]:
@@ -204,10 +205,9 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
             date (str): The date of the match.
             box_score_url (str): The box score PDF url.
     """
-    matches = []
-
     matchday_tables = doc.find_all("table")
 
+    matches = []
     for matchday_table in matchday_tables:
         matchday_table_body = matchday_table.find("tbody")
 
@@ -226,8 +226,9 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
 
             matches.append([home_team, away_team, date, box_score_href])
 
-    match_data = []
+    count = min(len(matches, count))
 
+    match_data = []
     for match in matches[(-1 * count):]:
         driver.get(match[3])
         time.sleep(1)
