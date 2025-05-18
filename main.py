@@ -105,27 +105,20 @@ scrape_button = st.button(
 )
 
 if (scrape_button):
-    async def download_data():
-        team_data = teams.get(team_name, None)
+    team_data = teams.get(team_name, None)
 
-        promises = []
+    if ("Roster" in data_to_scrape):
+        output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Roster.pdf"
+        download_tables(team_data["name"], "roster", team_data["roster_url"], output_file, ignored_roster_columns, pdfkit_config)
 
-        if ("Roster" in data_to_scrape):
-            output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Roster.pdf"
-            promises.append(download_tables(team_data["name"], "roster", team_data["roster_url"], output_file, ignored_roster_columns, pdfkit_config))
+    if ("Schedule" in data_to_scrape):
+        output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Schedule.pdf"
+        download_tables(team_data["name"], "schedule", team_data["schedule_url"], output_file, ignored_schedule_columns, pdfkit_config)
 
-        if ("Schedule" in data_to_scrape):
-            output_file = f"{output_folder_path}\\{team_data["abbreviation"]} Schedule.pdf"
-            promises.append(download_tables(team_data["name"], "schedule", team_data["schedule_url"], output_file, ignored_schedule_columns, pdfkit_config))
+    if ("Box Scores" in data_to_scrape):
+        download_box_scores(team_data, count, output_folder_path)
 
-        if ("Box Scores" in data_to_scrape):
-            promises.append(download_box_scores(team_data, count, output_folder_path))
+    if ("Stats" in data_to_scrape):
+        download_stats(team_data, years, output_folder_path)
 
-        if ("Stats" in data_to_scrape):
-            promises.append(download_stats(team_data, years, output_folder_path))
-
-        await asyncio.gather(*promises)
-
-        st.write("Finished!")
-
-    asyncio.run(download_data())
+    st.write("All files have been downloaded!")

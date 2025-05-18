@@ -1,4 +1,4 @@
-import asyncio
+import time
 import pdfkit
 import requests
 import pandas as pd
@@ -8,7 +8,7 @@ from utils import find_penn_state_stats_url, insert_html_tables, get_boost_box_s
 from bs4 import BeautifulSoup
 from pdfkit.configuration import Configuration
 
-async def download_tables(team_name: str, type: str, url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> None:
+def download_tables(team_name: str, type: str, url: str, output_file_path: str, ignored_columns: list[str], pdfkit_config: Configuration) -> None:
     """
     Download the roster page to a PDF file.
 
@@ -26,7 +26,7 @@ async def download_tables(team_name: str, type: str, url: str, output_file_path:
 
     driver = initialize_web_driver()
     driver.get(url)
-    await asyncio.sleep(1)
+    time.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "lxml")
 
@@ -54,7 +54,7 @@ async def download_tables(team_name: str, type: str, url: str, output_file_path:
 
     st.write(f"Finished downloading {team_name}'s {type}!")
 
-async def download_stats(team_data: dict[str, str], years: list[int], output_folder_path: str) -> None:
+def download_stats(team_data: dict[str, str], years: list[int], output_folder_path: str) -> None:
     """
     Print a team's season stats to a PDF file.
 
@@ -70,7 +70,7 @@ async def download_stats(team_data: dict[str, str], years: list[int], output_fol
 
     if (team_data["name"] == "Penn State"):
         url = f"https://{team_data["hostname"]}/sports/mens-soccer"
-        stats_url = await find_penn_state_stats_url(url)
+        stats_url = find_penn_state_stats_url(url)
 
         response = requests.get(stats_url)
 
@@ -105,7 +105,7 @@ async def download_stats(team_data: dict[str, str], years: list[int], output_fol
 
     st.write(f"Finished downloading {team_data["name"]}'s stats!")
 
-async def download_box_scores(team_data: dict[str, str], count: int, output_folder_path: str) -> None:
+def download_box_scores(team_data: dict[str, str], count: int, output_folder_path: str) -> None:
     """
     Print box scores into respective PDF files.
 
@@ -122,7 +122,7 @@ async def download_box_scores(team_data: dict[str, str], count: int, output_fold
     driver = initialize_web_driver()
     driver.get(team_data["conference_schedule_url"])
 
-    await asyncio.sleep(2)
+    time.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "html.parser")
 

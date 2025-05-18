@@ -1,4 +1,3 @@
-import asyncio
 from io import StringIO
 import time
 import tkinter as tk
@@ -124,7 +123,6 @@ def insert_html_tables(title: str, html_tables: list[str]) -> str:
     </body>
     </html>
     """
-
     doc = BeautifulSoup(html, "lxml")
 
     main = doc.find("main")
@@ -138,7 +136,7 @@ def insert_html_tables(title: str, html_tables: list[str]) -> str:
 
     return str(doc)
 
-async def find_penn_state_stats_url(url: str) -> str:
+def find_penn_state_stats_url(url: str) -> str:
     """
     Get the URLs of the stats PDF for Penn State.
 
@@ -150,7 +148,7 @@ async def find_penn_state_stats_url(url: str) -> str:
     """
     driver = initialize_web_driver()
     driver.get(url)
-    await asyncio.sleep(1)
+    time.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "lxml")
 
@@ -159,7 +157,7 @@ async def find_penn_state_stats_url(url: str) -> str:
     stats_url = li.find("a")["href"]
 
     driver.get(stats_url)
-    await asyncio.sleep(1)
+    time.sleep(1)
 
     doc = BeautifulSoup(driver.page_source, "lxml")
 
@@ -185,7 +183,7 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, count: int) -> list[str]:
 
     box_score_pdf_urls = [a["href"] for a in schedule_table.find_all("a", string="Box Score")]
 
-    count = min(len(box_score_pdf_urls, count))
+    count = min(len(box_score_pdf_urls), count)
     return box_score_pdf_urls[(-1 * count):]
 
 def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], doc: BeautifulSoup, count: int) -> list[tuple[str, str, str, str]]:
@@ -226,20 +224,23 @@ def get_sidearm_match_data(driver: webdriver.Chrome, team_data: dict[str, str], 
 
             matches.append([home_team, away_team, date, box_score_href])
 
-    count = min(len(matches, count))
+    count = min(len(matches), count)
 
     match_data = []
     for match in matches[(-1 * count):]:
         driver.get(match[3])
         time.sleep(1)
+
         doc = BeautifulSoup(driver.page_source, "lxml")
 
         box_score_preview_url = team_data["conference_base_url"] + doc.find("div", id="print-bar").find("a")["href"]
 
         driver.get(box_score_preview_url)
         time.sleep(1)
+
         doc = BeautifulSoup(driver.page_source, "lxml")
-        box_score_pdf_url = doc.find("a", string="Open")["href"]
+
+        box_score_pdf_url = doc.find("object")["data"]
 
         match_data.append((match[0], match[1], match[2], box_score_pdf_url))
 
