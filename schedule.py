@@ -6,8 +6,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from selenium.common import WebDriverException
 
-from ansi import BOLD, NORMAL, RED
-from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd
+from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd, print_failure_message
 
 
 def download_schedule(team_name: str, url: str, filename: str) -> None:
@@ -69,7 +68,7 @@ def download_schedule(team_name: str, url: str, filename: str) -> None:
 
         download_pdf_to_cwd(driver, filename)
     except WebDriverException as e:
-        print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print_failure_message(filename, e.msg)
     finally:
         driver.quit()
 

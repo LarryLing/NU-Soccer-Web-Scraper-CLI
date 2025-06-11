@@ -3,8 +3,7 @@ import time
 from bs4 import BeautifulSoup
 from selenium.common import TimeoutException, WebDriverException
 
-from ansi import BOLD, NORMAL, RED
-from utils import initialize_web_driver, response_pdf_to_cwd
+from utils import initialize_web_driver, response_pdf_to_cwd, print_failure_message
 
 
 def download_stats(team_data: dict, years: list[int]) -> None:
@@ -66,12 +65,12 @@ def download_stats(team_data: dict, years: list[int]) -> None:
                     response_pdf_to_cwd(object_tag["data"], filename)
                     continue
 
-            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: Could not find the PDF url.")
+            print_failure_message(filename, "Could not find the PDF url")
         except TimeoutException as e:
-            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+            print_failure_message(filename, e.msg)
             continue
         except WebDriverException as e:
-            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+            print_failure_message(filename, e.msg)
             continue
 
     driver.quit()

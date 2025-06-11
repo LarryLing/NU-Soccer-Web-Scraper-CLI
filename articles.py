@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup, Tag
 from pandas import DataFrame
 from selenium.common import TimeoutException, WebDriverException
 
-from ansi import BOLD, NORMAL, GREEN, RED
-from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd
+from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd, print_success_message, \
+    print_failure_message
 
 
 def fetch_articles(team_data: dict, date_range: tuple[dt.date, dt.date]) -> DataFrame | None:
@@ -44,12 +44,13 @@ def fetch_articles(team_data: dict, date_range: tuple[dt.date, dt.date]) -> Data
                 articles_df = scan_ul_for_articles(team_data, ul, date_range)
 
         if articles_df is not None:
-            print(f"FETCHING ARTICLES....{BOLD}{GREEN}SUCCESS{NORMAL}")
+            print_success_message("FETCHING ARTICLES")
             return articles_df
     except TimeoutException as e:
-        print(f"FETCHING ARTICLES....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print_failure_message("FETCHING_ARTICLES", e.msg)
     except WebDriverException as e:
-        print(f"FETCHING ARTICLES....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print_failure_message("FETCHING_ARTICLES", e.msg)
+
     finally:
         driver.quit()
 
@@ -94,7 +95,7 @@ def download_articles(articles: DataFrame) -> None:
 
             download_pdf_to_cwd(driver, filename)
         except TimeoutException as e:
-            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+            print_failure_message(filename, e.msg)
 
     driver.quit()
 

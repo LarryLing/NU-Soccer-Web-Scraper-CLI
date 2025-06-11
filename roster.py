@@ -2,8 +2,7 @@ import time
 
 from selenium.common import TimeoutException, WebDriverException
 
-from ansi import BOLD, NORMAL, RED
-from utils import initialize_web_driver, download_pdf_to_cwd
+from utils import initialize_web_driver, download_pdf_to_cwd, print_failure_message
 
 
 def download_roster(url: str, filename: str) -> None:
@@ -38,8 +37,8 @@ def download_roster(url: str, filename: str) -> None:
 
         download_pdf_to_cwd(driver, filename)
     except TimeoutException as e:
-        print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print_failure_message(filename, e.msg)
     except WebDriverException as e:
-        print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print_failure_message(filename, e.msg)
     finally:
         driver.quit()
