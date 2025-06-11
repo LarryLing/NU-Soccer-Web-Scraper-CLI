@@ -23,8 +23,8 @@ def initialize_web_driver() -> webdriver.Chrome:
 
     service = Service(
         ChromeDriverManager().install(),
-        service_args=['--verbose'],  # Enable verbose logging
-        connect_timeout=30  # Increase connection timeout
+        service_args=['--verbose'],
+        connect_timeout=30
     )
 
     chrome_options = Options()
@@ -109,9 +109,9 @@ def download_pdf_to_cwd(driver: webdriver.Chrome, filename: str) -> None:
         with open(output_file, 'wb') as file:
             file.write(pdf_bytes)
 
-        print(f"Downloading {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")
+        print(f"DOWNLOADING {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")
     except InvalidArgumentException as e:
-        print(f"Downloading {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print(f"DOWNLOADING {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
 
 
 def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
@@ -128,11 +128,30 @@ def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
     response = requests.get(pdf_url)
     if response.status_code == 404:
         print(
-            f"Downloading {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: Found a PDF URL, but it doesn't link to an existing file.")
+            f"DOWNLOADING {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: Found a PDF URL, but it doesn't link to an existing file.")
         return
 
     output_file = os.getcwd() + "/" + filename
     with open(output_file, "wb") as file:
         file.write(response.content)
 
-    print(f"Downloading {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")
+    print(f"DOWNLOADING {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")
+
+
+def prompt_user_for_articles(max_index: int) -> list[int]:
+    article_indexes = []
+
+    indexes = input("Enter the index of articles to download: ").strip().split(" ")
+    for index in indexes:
+        if not index.isdigit():
+            continue
+
+        if int(index) > max_index:
+            continue
+
+        if int(index) < 0:
+            continue
+
+        article_indexes.append(int(index))
+
+    return article_indexes

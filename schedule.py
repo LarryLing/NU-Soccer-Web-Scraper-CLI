@@ -69,7 +69,7 @@ def download_schedule(team_name: str, url: str, filename: str) -> None:
 
         download_pdf_to_cwd(driver, filename)
     except WebDriverException as e:
-        print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
     finally:
         driver.quit()
 

@@ -1,10 +1,15 @@
 import argparse
 import json
+from datetime import datetime
 
+import pandas as pd
+
+from articles import fetch_articles, download_articles
 from box_scores import download_box_scores
 from roster import download_roster
 from schedule import download_schedule
 from stats import download_stats
+from utils import prompt_user_for_articles
 
 
 def main():
@@ -39,7 +44,17 @@ def main():
         download_box_scores(team_data, args.box_scores)
 
     if args.articles:
-        pass
+        start_date = datetime.strptime(args.articles, "%m/%d/%Y").date()
+        now = datetime.now().date()
+
+        fetched_articles = fetch_articles(team_data, (start_date, now))
+        with pd.option_context('display.max_colwidth', None):
+            print(fetched_articles.drop("URL", axis=1))
+
+        article_indexes = prompt_user_for_articles(len(fetched_articles) - 1)
+        filtered_articles = fetched_articles.iloc[article_indexes]
+
+        download_articles(filtered_articles)
 
     print("All files have been downloaded!")
 

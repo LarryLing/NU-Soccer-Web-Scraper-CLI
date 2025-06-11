@@ -66,12 +66,12 @@ def download_stats(team_data: dict, years: list[int]) -> None:
                     response_pdf_to_cwd(object_tag["data"], filename)
                     continue
 
-            print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: Could not find the PDF url.")
+            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: Could not find the PDF url.")
         except TimeoutException as e:
-            print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
             continue
         except WebDriverException as e:
-            print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+            print(f"DOWNLOADING {filename}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
             continue
 
     driver.quit()
