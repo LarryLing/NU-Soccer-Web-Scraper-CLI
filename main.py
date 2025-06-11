@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(description="Scrape Team Data")
 
     with open("teams.json", "r") as file:
-        teams: dict[str, any] = json.load(file)
+        teams = json.load(file)
 
     parser.add_argument("-n", "--name", required=True, choices=list(teams.keys()), help="Name of the team to scrape")
     parser.add_argument("-r", "--roster", action="store_true", help="Get the roster data")

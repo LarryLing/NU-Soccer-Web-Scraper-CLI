@@ -28,7 +28,7 @@ def download_box_scores(team_data: dict, count: int) -> None:
             time.sleep(1)
             doc = BeautifulSoup(driver.page_source, "lxml")
 
-            box_score_pdf_urls = get_boost_box_score_pdf_urls(doc, team_data["abbreviation"], count)
+            box_score_pdf_urls = get_boost_box_score_pdf_urls(doc, team_data["name"], team_data["abbreviation"], count)
 
             for box_score_pdf_url in box_score_pdf_urls:
                 filename = box_score_pdf_url.split("/")[-1]
@@ -55,12 +55,13 @@ def download_box_scores(team_data: dict, count: int) -> None:
         driver.quit()
 
 
-def get_boost_box_score_pdf_urls(doc: BeautifulSoup, team_abbreviation: str, count: int) -> list[str]:
+def get_boost_box_score_pdf_urls(doc: BeautifulSoup, team_name: str, team_abbreviation: str, count: int) -> list[str]:
     """
     Get the URLs of the box scores from the conference websites provided by Boost.
 
     Args:
         doc: The BeautifulSoup object containing the parsed HTML.
+        team_name: The name of the team for which to get the box scores.
         team_abbreviation: The abbreviation of the team for which to get the box scores.
         count: The number of box scores to print.
 
@@ -72,7 +73,8 @@ def get_boost_box_score_pdf_urls(doc: BeautifulSoup, team_abbreviation: str, cou
     for table_row in schedule_table.find("tbody").find_all("tr"):
         table_cells = table_row.find_all("td")
 
-        if (team_abbreviation != table_cells[2].text) and (team_abbreviation != table_cells[4].text):
+        if (team_name != table_cells[2].text) and (team_name != table_cells[4].text) and (
+                team_abbreviation != table_cells[2].text) and (team_abbreviation != table_cells[4].text):
             continue
 
         anchor = table_row.find("a", string="Box Score")
