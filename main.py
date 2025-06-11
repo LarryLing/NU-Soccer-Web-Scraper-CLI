@@ -18,12 +18,28 @@ def main():
     with open("teams.json", "r") as file:
         teams = json.load(file)
 
-    parser.add_argument("-n", "--name", required=True, choices=list(teams.keys()), help="Name of the team to scrape")
-    parser.add_argument("-r", "--roster", action="store_true", help="Get the roster data")
-    parser.add_argument("-s", "--schedule", action="store_true", help="Get the schedule data")
-    parser.add_argument("-t", "--stats", help="Years for which to download stats", nargs="+", type=int)
-    parser.add_argument("-b", "--box-scores", help="Number of box scores to download", type=int)
-    parser.add_argument("-a", "--articles", help="Start date from which to search for articles")
+    parser.add_argument("-n", "--name",
+                        required=True,
+                        choices=list(teams.keys()),
+                        help="Accepts a team name (e.g., -n Northwestern)")
+    parser.add_argument("-r", "--roster",
+                        action="store_true",
+                        help="Determines whether or not the schedule is downloaded (e.g., -r)")
+    parser.add_argument("-s", "--schedule",
+                        action="store_true",
+                        help="Determines whether or not the schedule is downloaded (e.g., -s)")
+    parser.add_argument("-t", "--stats",
+                        help="Accepts 0 or more years (e.g., -t 2024 2023)",
+                        nargs="+",
+                        type=int,
+                        default=[datetime.now().year, datetime.now().year - 1])
+    parser.add_argument("-b", "--box-scores",
+                        help="Accepts a positive integer (e.g., -b 5)",
+                        type=int,
+                        default=5)
+    parser.add_argument("-a", "--articles",
+                        help="Accepts 1 or 2 dates (e.g., -a 12/12/2024 or -a 12/12/2024 05/01/2025)",
+                        nargs="+")
 
     args = parser.parse_args()
 
