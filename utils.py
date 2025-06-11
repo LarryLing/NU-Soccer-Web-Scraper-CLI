@@ -1,5 +1,8 @@
+import argparse
 import base64
+import datetime as dt
 import os
+from datetime import datetime
 
 import requests
 from bs4 import Tag
@@ -14,6 +17,65 @@ BOLD = '\033[1m'
 NORMAL = '\033[0m'
 RED = '\033[31m'
 GREEN = '\033[32m'
+
+
+def validate_box_scores_argument(box_scores: int) -> int:
+    """
+    Performs validation of the box scores argument by checking if the argument is greater than 1
+
+    Args:
+        box_scores: The box score value to validate.
+
+    Returns:
+        int
+    """
+    if box_scores < 1:
+        raise argparse.ArgumentTypeError("Expected an integer greater than 1")
+    return box_scores
+
+
+def format_date(date_string: str) -> dt.date | None:
+    """
+    Attempts to format the date string with the MM/DD/YYYY format.
+
+    Args:
+        date_string: The date string to format.
+
+    Returns:
+        dt.date
+    """
+    try:
+        formatted_date = datetime.strptime(date_string, "%m/%d/%Y").date()
+        return formatted_date
+    except ValueError:
+        return None
+
+
+def validate_articles_argument(dates: list[str]) -> list[dt.date]:
+    """
+    Performs validation of the articles argument by checking if the dates are of valid format and a correct number of dates were entered.
+
+    Args:
+        dates: The dates to validate.
+
+    Returns:
+        list[dt.date]
+    """
+    if len(dates) not in [1, 2]:
+        raise argparse.ArgumentTypeError("Expected 1 or 2 dates")
+
+    formatted_dates = []
+    for date in dates:
+        formatted_date = format_date(date)
+        if formatted_date is None:
+            raise argparse.ArgumentTypeError("Expected a date formatted as MM/DD/YYYY")
+
+        formatted_dates.append(formatted_date)
+
+    if len(formatted_dates) == 1:
+        formatted_dates.append(datetime.now().date())
+
+    return sorted(formatted_dates)
 
 
 def initialize_web_driver() -> webdriver.Chrome:

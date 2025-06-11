@@ -9,7 +9,7 @@ from box_scores import download_box_scores
 from roster import download_roster
 from schedule import download_schedule
 from stats import download_stats
-from utils import prompt_user_for_articles
+from utils import prompt_user_for_articles, validate_articles_argument, validate_box_scores_argument
 
 
 def main():
@@ -30,18 +30,27 @@ def main():
                         help="Determines whether or not the schedule is downloaded (e.g., -s)")
     parser.add_argument("-t", "--stats",
                         help="Accepts 0 or more years (e.g., -t 2024 2023)",
-                        nargs="+",
-                        type=int,
-                        default=[datetime.now().year, datetime.now().year - 1])
+                        nargs="*")
     parser.add_argument("-b", "--box-scores",
-                        help="Accepts a positive integer (e.g., -b 5)",
-                        type=int,
-                        default=5)
+                        help="Accepts an integer greater than 1 (e.g., -b 5)",
+                        type=int)
     parser.add_argument("-a", "--articles",
                         help="Accepts 1 or 2 dates (e.g., -a 12/12/2024 or -a 12/12/2024 05/01/2025)",
                         nargs="+")
 
     args = parser.parse_args()
+
+    if hasattr(args, 'box_scores') and args.box_scores is not None:
+        try:
+            args.box_scores = validate_box_scores_argument(args.box_scores)
+        except argparse.ArgumentTypeError as e:
+            parser.error(str(e))
+
+    if hasattr(args, 'articles') and args.articles is not None:
+        try:
+            args.articles = validate_articles_argument(args.articles)
+        except argparse.ArgumentTypeError as e:
+            parser.error(str(e))
 
     team_data = teams[args.name]
 
@@ -53,17 +62,15 @@ def main():
         filename = f"{team_data["abbreviation"]} Schedule.pdf"
         download_schedule(team_data["name"], team_data["schedule_url"], filename)
 
-    if args.stats:
-        download_stats(team_data, args.stats)
+    if args.stats is not None:
+        stats = args.stats if len(args.stats) > 0 else [str(datetime.now().year), str(datetime.now().year - 1)]
+        download_stats(team_data, stats)
 
-    if args.box_scores:
+    if args.box_scores is not None:
         download_box_scores(team_data, args.box_scores)
 
-    if args.articles:
-        start_date = datetime.strptime(args.articles, "%m/%d/%Y").date()
-        now = datetime.now().date()
-
-        fetched_articles = fetch_articles(team_data, (start_date, now))
+    if args.articles is not None:
+        fetched_articles = fetch_articles(team_data, args.articles)
         with pd.option_context('display.max_colwidth', None):
             print(fetched_articles.drop("URL", axis=1))
 

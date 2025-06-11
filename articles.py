@@ -7,11 +7,11 @@ from bs4 import BeautifulSoup, Tag
 from pandas import DataFrame
 from selenium.common import TimeoutException, WebDriverException
 
-from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd, print_success_message, \
-    print_failure_message
+from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd, print_failure_message, BOLD, GREEN, NORMAL, \
+    RED
 
 
-def fetch_articles(team_data: dict, date_range: tuple[dt.date, dt.date]) -> DataFrame | None:
+def fetch_articles(team_data: dict, date_range: list[dt.date]) -> DataFrame | None:
     """
     Fetches a team's articles, returning their headlines and URLs.
 
@@ -44,13 +44,12 @@ def fetch_articles(team_data: dict, date_range: tuple[dt.date, dt.date]) -> Data
                 articles_df = scan_ul_for_articles(team_data, ul, date_range)
 
         if articles_df is not None:
-            print_success_message("FETCHING ARTICLES")
+            print(f"{BOLD}{GREEN}[SUCCESS]{NORMAL} Fetched articles")
             return articles_df
     except TimeoutException as e:
-        print_failure_message("FETCHING_ARTICLES", e.msg)
+        print(f"{BOLD}{RED}[ERROR]{NORMAL} Failed to fetch articles ({e.msg})")
     except WebDriverException as e:
-        print_failure_message("FETCHING_ARTICLES", e.msg)
-
+        print(f"{BOLD}{RED}[ERROR]{NORMAL} Failed to fetch articles ({e.msg})")
     finally:
         driver.quit()
 
@@ -100,7 +99,7 @@ def download_articles(articles: DataFrame) -> None:
     driver.quit()
 
 
-def scan_table_for_articles(team_data: dict, table: Tag, date_range: tuple[dt.date, dt.date]) -> DataFrame:
+def scan_table_for_articles(team_data: dict, table: Tag, date_range: list[dt.date]) -> DataFrame:
     """
     Scans through an HTML table and returns a DataFrame containing the date posted, headline, and URL.
 
@@ -133,7 +132,7 @@ def scan_table_for_articles(team_data: dict, table: Tag, date_range: tuple[dt.da
     return dataframe[(dataframe["Date"].dt.date >= start_date) & (dataframe["Date"].dt.date <= end_date)]
 
 
-def scan_ul_for_articles(team_data: dict, ul: Tag, date_range: tuple[dt.date, dt.date]) -> DataFrame:
+def scan_ul_for_articles(team_data: dict, ul: Tag, date_range: list[dt.date]) -> DataFrame:
     """
     Scans through an HTML list and returns a DataFrame containing the date posted, headline, and URL.
 

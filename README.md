@@ -40,7 +40,7 @@ Options for years will be added at the start of every Fall NCAA season. However,
 
 ### Download box scores
 
-Use the `-b` or `--box-scores` flag to download a team's box scores. After the flag, the user may enter the number of box scores to download. If nothing has been entered, the app will default to 5 box scores.
+Use the `-b` or `--box-scores` flag to download a team's box scores. After the flag, the user may enter the number of box scores to download. If nothing has been entered, the app will default to `5` box scores.
 
 Box scores are downloaded in order from newest to oldest. And only the current season will be searched. If there are not enough box scores available, the app will attempt to download as many as possible.
 
@@ -50,7 +50,7 @@ Use the `-a` or `--articles` flag to download a team's articles. After the flag,
 
 If the user enters one date, the app fetches articles from the inputted date to the current date.
 
-If the user enters two dates, the app fetches articles from the first date to the second date. If the first date comes after the second date, the fetch will fail.
+If the user enters two dates, the app fetches articles from the first date to the second date. The dates will be sorted if the first date comes after the second date.
 
 After the articles have been fetched. The user will be asked to enter the indexes (separated by spaces) of the articles they would like to download.
 
