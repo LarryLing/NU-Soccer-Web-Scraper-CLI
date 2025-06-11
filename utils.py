@@ -9,28 +9,62 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.print_page_options import PrintOptions
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
 
 
 def initialize_web_driver() -> webdriver.Chrome:
     """
-    Initializes a new web driver instance.
+    Initializes a new web driver instance with robust configuration.
 
     Returns:
         A new web driver instance.
     """
-    service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+
+    service = Service(
+        ChromeDriverManager().install(),
+        service_args=['--verbose'],  # Enable verbose logging
+        connect_timeout=30  # Increase connection timeout
+    )
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+
+    # Essential headless arguments
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-software-rasterizer")
-    chrome_options.add_argument("--single-process")
 
-    return webdriver.Chrome(service=service, options=chrome_options)
+    # Stability improvements
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--disable-popup-blocking")
+    chrome_options.add_argument("--log-level=3")
+
+    # Memory management
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+
+    # Experimental stability flags
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
+
+    try:
+        driver = webdriver.Chrome(
+            service=service,
+            options=chrome_options,
+        )
+
+        # Additional stability configurations
+        driver.set_page_load_timeout(30)
+        driver.set_script_timeout(20)
+        driver.implicitly_wait(10)
+
+        return driver
+
+    except Exception as e:
+        service.stop()  # Clean up service if initialization fails
+        raise RuntimeError(f"Failed to initialize WebDriver: {str(e)}")
 
 
 def sanitize_html(doc: Tag | None) -> str:

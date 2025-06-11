@@ -21,7 +21,6 @@ def main():
     parser.add_argument("-a", "--articles", help="Start date from which to search for articles")
 
     args = parser.parse_args()
-    print(args)
 
     team_data = teams[args.name]
 
