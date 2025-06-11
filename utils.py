@@ -109,9 +109,9 @@ def download_pdf_to_cwd(driver: webdriver.Chrome, filename: str) -> None:
         with open(output_file, 'wb') as file:
             file.write(pdf_bytes)
 
-        print(f"Downloading {filename}... {BOLD}{GREEN}SUCCESS{NORMAL}")
+        print(f"Downloading {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")
     except InvalidArgumentException as e:
-        print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
+        print(f"Downloading {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
 
 
 def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
@@ -128,11 +128,11 @@ def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
     response = requests.get(pdf_url)
     if response.status_code == 404:
         print(
-            f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: Found a PDF URL, but it doesn't link to an existing file.")
+            f"Downloading {filename}{NORMAL}....{BOLD}{RED}FAILED{NORMAL}\nReason: Found a PDF URL, but it doesn't link to an existing file.")
         return
 
     output_file = os.getcwd() + "/" + filename
     with open(output_file, "wb") as file:
         file.write(response.content)
 
-    print(f"Downloading {filename}... {BOLD}{GREEN}SUCCESS{NORMAL}")
+    print(f"Downloading {filename}{NORMAL}....{BOLD}{GREEN}SUCCESS{NORMAL}")

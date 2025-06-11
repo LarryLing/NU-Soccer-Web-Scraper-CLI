@@ -36,7 +36,6 @@ def main():
         download_stats(team_data, args.stats)
 
     if args.box_scores:
-        print(args.box_scores)
         download_box_scores(team_data, args.box_scores)
 
     if args.articles:
