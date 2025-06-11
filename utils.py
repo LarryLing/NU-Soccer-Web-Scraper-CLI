@@ -141,6 +141,15 @@ def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
 
 
 def prompt_user_for_articles(max_index: int) -> list[int]:
+    """
+    Asks the user to enter the indexes of the articles they want to download. A list of indexes is returned.
+
+    Args:
+        max_index: The index of last fetched article, used to determine the range of available indexes.
+
+    Returns:
+        list[int]
+    """
     article_indexes = []
 
     indexes = input("Enter the index of articles to download: ").strip().split(" ")
@@ -160,8 +169,27 @@ def prompt_user_for_articles(max_index: int) -> list[int]:
 
 
 def print_failure_message(filename: str, reason: str) -> None:
+    """
+    Prints a message to the console, indicating a failed download.
+
+    Args:
+        filename: The filename of the PDF file.
+        reason: The reason why the download failed.
+
+    Returns:
+        None
+    """
     print(f"{BOLD}{RED}[ERROR]{NORMAL} Failed to download \"{filename}\" ({reason})")
 
 
 def print_success_message(filename: str):
+    """
+    Prints a message to the console, indicating a successful download.
+
+    Args:
+        filename: The filename of the PDF file.
+
+    Returns:
+        None
+    """
     print(f"{BOLD}{GREEN}[SUCCESS]{NORMAL} Downloaded \"{filename}\" to {os.getcwd()}")
