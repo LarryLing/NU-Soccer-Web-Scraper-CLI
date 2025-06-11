@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, Tag
 from pandas import DataFrame
 from selenium.common import TimeoutException, WebDriverException
 
+from ansi import BOLD, NORMAL, GREEN, RED
 from utils import initialize_web_driver, sanitize_html, download_pdf_to_cwd
 
 
@@ -43,12 +44,12 @@ def fetch_articles(team_data: dict, date_range: tuple[dt.date, dt.date]) -> Data
                 articles_df = scan_ul_for_articles(team_data, ul, date_range)
 
         if articles_df is not None:
-            print(f"**Fetching Articles** :white_check_mark:")
+            print(f"Fetching articles... {BOLD}{GREEN}SUCCESS{NORMAL}")
             return articles_df
     except TimeoutException as e:
-        print(f"**Fetching Articles** :x:  \nReason: {e.msg}")
+        print(f"Fetching articles... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
     except WebDriverException as e:
-        print(f"**Fetching Articles** :x:  \nReason: {e.msg}")
+        print(f"Fetching articles... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
     finally:
         driver.quit()
 
@@ -93,7 +94,7 @@ def download_articles(articles: DataFrame) -> None:
 
             download_pdf_to_cwd(driver, filename)
         except TimeoutException as e:
-            print(f"**{filename}** :x:  \nReason: {e.msg}")
+            print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
 
     driver.quit()
 

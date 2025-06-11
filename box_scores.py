@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common import TimeoutException, ElementNotVisibleException, WebDriverException
 
+from ansi import BOLD, NORMAL, RED
 from utils import initialize_web_driver, response_pdf_to_cwd
 
 
@@ -47,9 +48,9 @@ def download_box_scores(team_data: dict, count: int) -> None:
 
                 response_pdf_to_cwd(box_score_pdf_url, filename)
     except TimeoutException as e:
-        print(e)
+        print(f"Downloading box scores... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
     except WebDriverException as e:
-        print(f"**Locating Box Scores** :x:  \nReason: {e.msg}")
+        print(f"Downloading box scores... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
     finally:
         driver.quit()
 
@@ -201,8 +202,8 @@ def fetch_pdf_urls_for_matches(driver: webdriver.Chrome, matches: list[tuple[str
 
             match_data.append((match[0], match[1], match[2], box_score_pdf_url))
         except TimeoutException as e:
-            print(f"**{match[0]} vs. {match[1]} {match[2]}.pdf** :x:  \nReason: {e.msg}")
+            print(f"Downloading {match[0]} vs. {match[1]} {match[2]}.pdf... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
         except ElementNotVisibleException as e:
-            print(f"**{match[0]} vs. {match[1]} {match[2]}.pdf** :x:  \nReason: {e.msg}")
+            print(f"Downloading {match[0]} vs. {match[1]} {match[2]}.pdf... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
 
     return match_data

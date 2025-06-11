@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.print_page_options import PrintOptions
 from webdriver_manager.chrome import ChromeDriverManager
 
+from ansi import BOLD, NORMAL, GREEN, RED
 
 def initialize_web_driver() -> webdriver.Chrome:
     """
@@ -107,9 +108,9 @@ def download_pdf_to_cwd(driver: webdriver.Chrome, filename: str) -> None:
         with open(output_file, 'wb') as file:
             file.write(pdf_bytes)
 
-        print(f"**{filename}** :white_check_mark:")
+        print(f"Downloading {filename}... {BOLD}{GREEN}SUCCESS{NORMAL}")
     except InvalidArgumentException as e:
-        print(f"**{filename}** :x:  \nReason: {e.msg}")
+        print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: {e.msg}")
 
 
 def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
@@ -125,11 +126,12 @@ def response_pdf_to_cwd(pdf_url: str, filename: str) -> None:
     """
     response = requests.get(pdf_url)
     if response.status_code == 404:
-        print(f"**{filename}** :x:  \nReason: Found a PDF URL, but it doesn't link to an existing file.")
+        print(f"Downloading {filename}... {BOLD}{RED}FAILED{NORMAL}\nReason: Found a PDF URL, but it doesn't link to an existing file.")
         return
 
     output_file = os.getcwd() + "/" + filename
     with open(output_file, "wb") as file:
         file.write(response.content)
 
-    print(f"**{filename}** :white_check_mark:")
+    print(f"Downloading {filename}... {BOLD}{GREEN}SUCCESS{NORMAL}")
+
