@@ -1,3 +1,13 @@
+import sys
+from pathlib import Path
+
+# Get the directory where this script lives
+script_dir = Path(__file__).parent.absolute()
+
+# Add to Python path if not already present
+if str(script_dir) not in sys.path:
+    sys.path.insert(0, str(script_dir))
+
 import argparse
 import json
 from datetime import datetime
@@ -15,7 +25,7 @@ from utils import prompt_user_for_articles, validate_articles_argument, validate
 def main():
     parser = argparse.ArgumentParser(description="Scrape Team Data")
 
-    with open("teams.json", "r") as file:
+    with open(script_dir / "teams.json", "r") as file:
         teams = json.load(file)
 
     parser.add_argument("-n", "--name",
@@ -41,8 +51,6 @@ def main():
                         help="Accepts 1 or 2 dates (e.g., -a 12/12/2024 or -a 12/12/2024 05/01/2025)")
 
     args = parser.parse_args()
-
-    print(args)
 
     if hasattr(args, 'box_scores') and args.box_scores is not None:
         try:

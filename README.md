@@ -54,14 +54,14 @@ If the user provides two dates, the app fetches articles from the first date to 
 
 After the articles have been fetched. The user will be asked to enter the indexes (separated by spaces) of the articles they would like to download.
 
-### Example usage
-```sh
+### Example usage (while in local directory)
+```shell
 python main.py -n Northwestern -r -s -t 2024 2023 -b 5 -a 12/12/2024
 ```
-```sh
+```shell
 python main.py -n Northwestern -r -s -t -b 5 -a 12/12/2024 05/01/2025
 ```
-```sh
+```shell
 python main.py -n Northwestern -r -s -t -b -a 12/12/2024
 ```
 
@@ -73,20 +73,47 @@ to discuss what you would like to change. Follow the instructions below to get a
 ### Installation
 
 Clone the repository on to your local machine.
-```bash
+```shell
 git clone https://github.com/LarryLing/NU-Soccer-Web-Scraper-CLI.git
-cd NU-Soccer-Web-Scraper
+cd NU-Soccer-Web-Scraper-CLI
 ```
 
-Create a virtual environment.
-```bash
+Set up the virtual environment.
+```shell
  python -m venv .venv
+ source .venv/bin/activate
 ```
 
 Install the required packages.
-```bash
+```shell
 pip install -r requirements.txt
 ```
+
+Make the script executable.
+```shell
+chmod +x run_scraper
+```
+
+Run the script from any directory.
+```zsh
+/path/to/NU-Soccer-Web-Scraper-CLI/my_script -n Northwestern -r -s -t -b -a 12/12/2024
+```
+
+### Run the script without typing the full path (macOS)
+
+Create a symlink. Feel free to change `my_script` to any name you want.
+```shell
+ln -s "$(pwd)/run_scraper" /usr/local/bin/my_script
+```
+ 
+Run the script from any directory.
+```zsh
+my_script -n Northwestern -r -s -t -b -a 12/12/2024
+```
+
+
+
+
 
 ## License
 

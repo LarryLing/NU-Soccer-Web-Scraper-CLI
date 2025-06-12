@@ -1,6 +1,6 @@
-import os
 import time
 from io import StringIO
+from pathlib import Path
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -56,17 +56,20 @@ def download_schedule(team_name: str, url: str, filename: str) -> None:
             extracted_tables = extract_tables(soup)
 
             if not extracted_tables:
-                raise ValueError(
-                    f"Could not find tables to extract. This is likely caused by the website's internal server error.  \n{url}")
+                raise ValueError(f"Website encountered an internal server error")
 
             full_html = build_html_document(soup.find("title").text, extracted_tables)
 
-            with open("temp.html", "w") as f:
+            script_dir = Path(__file__).parent.absolute()
+
+            with open(script_dir / "temp.html", "w") as f:
                 f.write(full_html)
 
-            driver.get(f"file:///{os.getcwd()}/temp.html")
+            driver.get(f"file:///{str(script_dir / "temp.html")}")
 
         download_pdf_to_cwd(driver, filename)
+    except ValueError as e:
+        print_failure_message(filename, e.args[0])
     except WebDriverException as e:
         print_failure_message(filename, e.msg)
     finally:

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Get the project root (where .venv lives)
+PROJECT_ROOT="$(dirname "$(realpath "$0")")"
+
+# Activate venv
+if [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
+    source "$PROJECT_ROOT/.venv/bin/activate"
+else
+    echo "Error: Virtual environment not found at '$PROJECT_ROOT/.venv/bin/activate'"
+    echo "Did you run 'python -m venv .venv' in the project root?"
+    exit 1
+fi
+
+# Run the Python script
+python "$PROJECT_ROOT/main.py" "$@"
