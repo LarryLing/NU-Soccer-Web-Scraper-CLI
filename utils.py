@@ -254,4 +254,4 @@ def print_success_message(filename: str):
     Returns:
         None
     """
-    print(f"{BOLD}{GREEN}[SUCCESS]{NORMAL} Downloaded \"{filename}\" to {os.getcwd()}")
+    print(f"{BOLD}{GREEN}[SUCCESS]{NORMAL} Downloaded \"{filename}\"")

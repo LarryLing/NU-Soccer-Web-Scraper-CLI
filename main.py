@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 
 # Get the directory where this script lives
@@ -19,7 +20,8 @@ from box_scores import download_box_scores
 from roster import download_roster
 from schedule import download_schedule
 from stats import download_stats
-from utils import prompt_user_for_articles, validate_articles_argument, validate_box_scores_argument
+from utils import prompt_user_for_articles, validate_articles_argument, validate_box_scores_argument, NORMAL, GREEN, \
+    BOLD
 
 
 def main():
@@ -91,7 +93,7 @@ def main():
 
         download_articles(filtered_articles)
 
-    print("All files have been downloaded!")
+    print(f"{BOLD}{GREEN}[DONE]{NORMAL} Finished downloading files to {os.getcwd()}")
 
 
 if __name__ == "__main__":
