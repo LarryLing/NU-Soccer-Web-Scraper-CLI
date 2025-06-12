@@ -19,8 +19,8 @@ def main():
         teams = json.load(file)
 
     parser.add_argument("-n", "--name",
-                        required=True,
                         choices=list(teams.keys()),
+                        required=True,
                         help="Accepts a team name (e.g., -n Northwestern)")
     parser.add_argument("-r", "--roster",
                         action="store_true",
@@ -29,16 +29,20 @@ def main():
                         action="store_true",
                         help="Determines whether or not the schedule is downloaded (e.g., -s)")
     parser.add_argument("-t", "--stats",
-                        help="Accepts 0 or more years (e.g., -t 2024 2023)",
-                        nargs="*")
+                        nargs="*",
+                        help="Accepts 0 or more years (e.g., -t 2024 2023)")
     parser.add_argument("-b", "--box-scores",
-                        help="Accepts an integer greater than 1 (e.g., -b 5)",
-                        type=int)
+                        nargs="?",
+                        const = 5,
+                        type=int,
+                        help="Accepts 0 or 1 integers greater than 1 (e.g., -b 5)")
     parser.add_argument("-a", "--articles",
-                        help="Accepts 1 or 2 dates (e.g., -a 12/12/2024 or -a 12/12/2024 05/01/2025)",
-                        nargs="+")
+                        nargs="+",
+                        help="Accepts 1 or 2 dates (e.g., -a 12/12/2024 or -a 12/12/2024 05/01/2025)")
 
     args = parser.parse_args()
+
+    print(args)
 
     if hasattr(args, 'box_scores') and args.box_scores is not None:
         try:

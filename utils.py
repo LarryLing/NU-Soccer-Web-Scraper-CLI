@@ -30,7 +30,7 @@ def validate_box_scores_argument(box_scores: int) -> int:
         int
     """
     if box_scores < 1:
-        raise argparse.ArgumentTypeError("Expected an integer greater than 1")
+        raise argparse.ArgumentTypeError("expected an integer greater than 1")
     return box_scores
 
 
@@ -62,13 +62,13 @@ def validate_articles_argument(dates: list[str]) -> list[dt.date]:
         list[dt.date]
     """
     if len(dates) not in [1, 2]:
-        raise argparse.ArgumentTypeError("Expected 1 or 2 dates")
+        raise argparse.ArgumentTypeError("expected one or two dates")
 
     formatted_dates = []
     for date in dates:
         formatted_date = format_date(date)
         if formatted_date is None:
-            raise argparse.ArgumentTypeError("Expected a date formatted as MM/DD/YYYY")
+            raise argparse.ArgumentTypeError("expected a date formatted as MM/DD/YYYY")
 
         formatted_dates.append(formatted_date)
 
@@ -214,7 +214,7 @@ def prompt_user_for_articles(max_index: int) -> list[int]:
     """
     article_indexes = []
 
-    indexes = input("Enter the index of articles to download: ").strip().split(" ")
+    indexes = input("Enter the index of articles to download (e.g., 0 1 2): ").strip().split(" ")
     for index in indexes:
         if not index.isdigit():
             continue
